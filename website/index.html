@@ -742,32 +742,88 @@ function showToast(msg, type = 'ok') {
 // HISTÓRICO
 // ══════════════════════════════════════════════════
 function renderHistorico(filtro = '') {
-  const list = document.getElementById('hist-list');
+  var list = document.getElementById('hist-list');
   if (!list) return;
 
-  console.log('Sessions:', S.chatSessions.length); // debug
-
-  const sessions = filtro
-    ? S.chatSessions.filter(s =>
-        s.title.toLowerCase().includes(filtro.toLowerCase()) ||
-        s.hist.some(m => m.content.toLowerCase().includes(filtro.toLowerCase()))
-      )
-    : S.chatSessions;
+  var sessions = S.chatSessions;
+  if (filtro) {
+    var f = filtro.toLowerCase();
+    sessions = sessions.filter(function(s) {
+      return s.title.toLowerCase().includes(f) ||
+        s.hist.some(function(m) { return m.content.toLowerCase().includes(f); });
+    });
+  }
 
   if (!sessions.length) {
-    list.innerHTML = `<div class="hist-empty">${
-      filtro ? 'Nenhuma conversa encontrada.' : 'Nenhuma conversa salva ainda.<br>Inicie um chat e ele aparecerá aqui.'
-    }</div>`;
+    list.innerHTML = filtro
+      ? '<div class="hist-empty">Nenhuma conversa encontrada.</div>'
+      : '<div class="hist-empty">Nenhuma conversa salva ainda.<br>Inicie um chat e ele aparecerá aqui.</div>';
     return;
   }
 
-  const cards = sessions.map(s => {
-    const preview = s.hist.slice(0, 2).map(m =>
-      `<div class="hist-preview-line"><span class="hist-preview-role">${m.role === 'user' ? 'Você' : (S.aiConfig.nome || 'IA')}:</span> ${m.content.slice(0, 90)}${m.content.length > 90 ? '…' : ''}</div>`
-    ).join('');
-    return `
-      <div class="hist-card${s.id === S.currentSessionId ? ' hist-active' : ''}">
-        <div class="hist-card-top">
+  var grid = document.createElement('div');
+  grid.className = 'hist-grid';
+
+  sessions.forEach(function(s) {
+    var card = document.createElement('div');
+    card.className = 'hist-card' + (s.id === S.currentSessionId ? ' hist-active' : '');
+
+    var top = document.createElement('div');
+    top.className = 'hist-card-top';
+
+    var title = document.createElement('div');
+    title.className = 'hist-card-title';
+    title.textContent = s.title;
+
+    var meta = document.createElement('div');
+    meta.className = 'hist-card-meta';
+
+    var date = document.createElement('span');
+    date.className = 'hist-card-date';
+    date.textContent = fmtTs(s.ts);
+
+    var menuBtn = document.createElement('button');
+    menuBtn.className = 'hist-card-menu';
+    menuBtn.title = 'Apagar';
+    menuBtn.textContent = '⋯';
+    menuBtn.onclick = function() { deleteSession(s.id); };
+
+    meta.appendChild(date);
+    meta.appendChild(menuBtn);
+    top.appendChild(title);
+    top.appendChild(meta);
+
+    var preview = document.createElement('div');
+    preview.className = 'hist-card-preview';
+    s.hist.slice(0, 2).forEach(function(m) {
+      var line = document.createElement('div');
+      line.className = 'hist-preview-line';
+      var role = document.createElement('span');
+      role.className = 'hist-preview-role';
+      role.textContent = (m.role === 'user' ? 'Você' : (S.aiConfig.nome || 'IA')) + ': ';
+      var text = document.createTextNode(m.content.slice(0, 90) + (m.content.length > 90 ? '…' : ''));
+      line.appendChild(role);
+      line.appendChild(text);
+      preview.appendChild(line);
+    });
+
+    var actions = document.createElement('div');
+    actions.className = 'hist-card-actions';
+    var openBtn = document.createElement('button');
+    openBtn.className = 'hist-open-btn';
+    openBtn.textContent = 'Abrir conversa →';
+    openBtn.onclick = function() { loadSession(s.id); };
+    actions.appendChild(openBtn);
+
+    card.appendChild(top);
+    card.appendChild(preview);
+    card.appendChild(actions);
+    grid.appendChild(card);
+  });
+
+  list.innerHTML = '';
+  list.appendChild(grid);
+}
 // ══════════════════════════════════════════════════
 // SESSÕES DE CHAT
 // ══════════════════════════════════════════════════
