@@ -1,4 +1,3 @@
-```javascript
 // ============================================================
 //  config.js — Configurações da API Mistral
 //  Cole sua chave abaixo e salve o arquivo.
@@ -16,4 +15,3 @@ const CONFIG = {
   //   'mistral-large-latest' → melhor qualidade
   MISTRAL_MODEL: 'open-mixtral-8x7b',
 };
-```
