@@ -149,17 +149,21 @@
       </div>
     </div>
 
-  <!-- ── HISTÓRICO ── -->
-<div class="panel panel-historico" id="p-historico">
-  <div class="hist-search-wrap">
-    <input class="field hist-search" id="hist-search"
-      placeholder="Buscar nas conversas..."
-      oninput="renderHistorico(this.value)"/>
-  </div>
-  <div class="hist-list" id="hist-list">
-    <div class="hist-empty">Nenhuma conversa salva ainda.<br>Inicie um chat e ele aparecerá aqui.</div>
-  </div>
-</div>
+    <!-- ── HISTÓRICO ── -->
+    <div class="panel panel-historico" id="p-historico">
+      <div class="hist-header">
+        <div class="hist-info" id="hist-info">0 conversas salvas</div>
+        <button class="btn danger" onclick="clearAllChats()" style="font-size:11px">🗑 Apagar tudo</button>
+      </div>
+      <div class="hist-search-wrap">
+        <input class="field hist-search" id="hist-search"
+          placeholder="Buscar nas conversas..."
+          oninput="renderHistorico(this.value)"/>
+      </div>
+      <div class="hist-list" id="hist-list">
+        <div class="hist-empty">Nenhuma conversa salva ainda.<br>Inicie um chat e ele aparecerá aqui.</div>
+      </div>
+    </div>
 
     <!-- ── AGENDA ── -->
     <div class="panel panel-agenda" id="p-agenda">
@@ -741,89 +745,58 @@ function showToast(msg, type = 'ok') {
 // ══════════════════════════════════════════════════
 // HISTÓRICO
 // ══════════════════════════════════════════════════
+function fmtTs(ts) {
+  if (!ts) return '';
+  const d = new Date(ts), hoje = new Date(), diff = hoje - d;
+  if (diff < 60000)    return 'agora';
+  if (diff < 3600000)  return Math.floor(diff / 60000) + 'min atrás';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + 'h atrás';
+  return `${d.getDate()} ${MOS3[d.getMonth()]}`;
+}
+
 function renderHistorico(filtro = '') {
-  var list = document.getElementById('hist-list');
+  const list = document.getElementById('hist-list');
+  const info = document.getElementById('hist-info');
   if (!list) return;
 
-  var sessions = S.chatSessions;
-  if (filtro) {
-    var f = filtro.toLowerCase();
-    sessions = sessions.filter(function(s) {
-      return s.title.toLowerCase().includes(f) ||
-        s.hist.some(function(m) { return m.content.toLowerCase().includes(f); });
-    });
-  }
+  const sessions = filtro
+    ? S.chatSessions.filter(s =>
+        s.title.toLowerCase().includes(filtro.toLowerCase()) ||
+        s.hist.some(m => m.content.toLowerCase().includes(filtro.toLowerCase()))
+      )
+    : S.chatSessions;
+
+  if (info) info.textContent = `${S.chatSessions.length} conversa${S.chatSessions.length !== 1 ? 's' : ''} salva${S.chatSessions.length !== 1 ? 's' : ''}`;
 
   if (!sessions.length) {
-    list.innerHTML = filtro
-      ? '<div class="hist-empty">Nenhuma conversa encontrada.</div>'
-      : '<div class="hist-empty">Nenhuma conversa salva ainda.<br>Inicie um chat e ele aparecerá aqui.</div>';
+    list.innerHTML = `<div class="hist-empty">${
+      filtro ? 'Nenhuma conversa encontrada.' : 'Nenhuma conversa salva ainda.<br>Inicie um chat e ele aparecerá aqui.'
+    }</div>`;
     return;
   }
 
-  var grid = document.createElement('div');
-  grid.className = 'hist-grid';
-
-  sessions.forEach(function(s) {
-    var card = document.createElement('div');
-    card.className = 'hist-card' + (s.id === S.currentSessionId ? ' hist-active' : '');
-
-    var top = document.createElement('div');
-    top.className = 'hist-card-top';
-
-    var title = document.createElement('div');
-    title.className = 'hist-card-title';
-    title.textContent = s.title;
-
-    var meta = document.createElement('div');
-    meta.className = 'hist-card-meta';
-
-    var date = document.createElement('span');
-    date.className = 'hist-card-date';
-    date.textContent = fmtTs(s.ts);
-
-    var menuBtn = document.createElement('button');
-    menuBtn.className = 'hist-card-menu';
-    menuBtn.title = 'Apagar';
-    menuBtn.textContent = '⋯';
-    menuBtn.onclick = function() { deleteSession(s.id); };
-
-    meta.appendChild(date);
-    meta.appendChild(menuBtn);
-    top.appendChild(title);
-    top.appendChild(meta);
-
-    var preview = document.createElement('div');
-    preview.className = 'hist-card-preview';
-    s.hist.slice(0, 2).forEach(function(m) {
-      var line = document.createElement('div');
-      line.className = 'hist-preview-line';
-      var role = document.createElement('span');
-      role.className = 'hist-preview-role';
-      role.textContent = (m.role === 'user' ? 'Você' : (S.aiConfig.nome || 'IA')) + ': ';
-      var text = document.createTextNode(m.content.slice(0, 90) + (m.content.length > 90 ? '…' : ''));
-      line.appendChild(role);
-      line.appendChild(text);
-      preview.appendChild(line);
-    });
-
-    var actions = document.createElement('div');
-    actions.className = 'hist-card-actions';
-    var openBtn = document.createElement('button');
-    openBtn.className = 'hist-open-btn';
-    openBtn.textContent = 'Abrir conversa →';
-    openBtn.onclick = function() { loadSession(s.id); };
-    actions.appendChild(openBtn);
-
-    card.appendChild(top);
-    card.appendChild(preview);
-    card.appendChild(actions);
-    grid.appendChild(card);
-  });
-
-  list.innerHTML = '';
-  list.appendChild(grid);
+  list.innerHTML = sessions.map(s => {
+    const preview = s.hist.slice(0, 2).map(m =>
+      `<span class="hist-preview-role">${m.role === 'user' ? 'Você' : S.aiConfig.nome}:</span> ${m.content.slice(0, 80)}${m.content.length > 80 ? '…' : ''}`
+    ).join('<br>');
+    return `
+      <div class="hist-card${s.id === S.currentSessionId ? ' hist-active' : ''}">
+        <div class="hist-card-top">
+          <div class="hist-card-title">${s.title}</div>
+          <div class="hist-card-meta">
+            <span class="hist-card-date">${fmtTs(s.ts)}</span>
+            <span class="hist-card-count">${s.hist.filter(m => m.role === 'user').length} msgs</span>
+          </div>
+        </div>
+        <div class="hist-card-preview">${preview}</div>
+        <div class="hist-card-actions">
+          <button class="btn pr" style="font-size:11px;padding:4px 10px" onclick="loadSession('${s.id}')">Abrir conversa →</button>
+          <button class="btn danger" style="font-size:11px;padding:4px 10px" onclick="deleteSession('${s.id}')">Apagar</button>
+        </div>
+      </div>`;
+  }).join('');
 }
+
 // ══════════════════════════════════════════════════
 // SESSÕES DE CHAT
 // ══════════════════════════════════════════════════
