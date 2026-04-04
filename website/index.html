@@ -1552,23 +1552,18 @@ function saveELKey() {
 // MISTRAL API
 // ══════════════════════════════════════════════════
 async function callAI(prompt) {
-  const model = S.model || 'open-mixtral-8x7b';
-
-  const res = await fetch('/api/chat', {
+  const key   = S.apiKey || document.getElementById('api-key')?.value?.trim();
+  const model = S.model  || 'open-mixtral-8x7b';
+  if (!key) throw new Error('Configure sua chave Mistral em ⚙ Configurações');
+  const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model,
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }],
-    }),
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+    body: JSON.stringify({ model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] }),
   });
-
   if (!res.ok) {
     const e = await res.json().catch(() => ({}));
-    throw new Error(`Erro ${res.status}: ${e.error || 'Verifique o servidor'}`);
+    throw new Error(`Mistral ${res.status}: ${e.message || 'Verifique sua chave'}`);
   }
-
   return (await res.json()).choices[0].message.content;
 }
 
