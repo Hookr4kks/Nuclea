@@ -627,26 +627,115 @@ select.field option { background: var(--bg2); }
 /* ══════════════════════════════════════
    HISTÓRICO
 ══════════════════════════════════════ */
-.panel-historico.on { padding: 18px; gap: 14px; overflow-y: auto; }
-.hist-header { display: flex; align-items: center; justify-content: space-between; }
-.hist-info   { font-size: 11px; color: var(--tx2); font-weight: 500; }
+.panel-historico.on {
+  padding: 20px;
+  gap: 16px;
+  overflow-y: auto;
+  flex-direction: column;
+}
 .hist-search-wrap { width: 100%; }
-.hist-search { width: 100%; background: var(--bg3); border: 1px solid var(--bd2); }
-.hist-list   { display: flex; flex-direction: column; gap: 8px; }
-.hist-empty  { text-align: center; font-size: 12px; color: var(--tx2); padding: 32px 16px; line-height: 1.7; }
-
-.hist-card { background: var(--bg2); border: 1px solid var(--bd); border-radius: var(--r); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; transition: border-color .15s; }
-.hist-card:hover { border-color: var(--bd2); }
+.hist-search {
+  width: 100%;
+  font-size: 13px;
+  padding: 11px 16px;
+  background: var(--bg3);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r);
+}
+.hist-list { width: 100%; }
+.hist-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .hist-grid { grid-template-columns: 1fr; }
+}
+.hist-empty {
+  text-align: center;
+  font-size: 12px;
+  color: var(--tx2);
+  padding: 40px 16px;
+  line-height: 1.7;
+}
+.hist-card {
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color .15s, box-shadow .15s;
+  cursor: default;
+}
+.hist-card:hover { border-color: var(--bd2); box-shadow: 0 2px 12px rgba(0,0,0,.2); }
 .hist-card.hist-active { border-color: var(--ac); }
-
-.hist-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.hist-card-title { font-size: 13px; font-weight: 600; color: var(--tx); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hist-card-meta  { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
-.hist-card-date  { font-size: 10px; color: var(--tx2); }
-.hist-card-count { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 20px; background: var(--pu2); color: var(--pu); }
-.hist-card-preview { font-size: 11px; color: var(--tx2); line-height: 1.6; border-left: 2px solid var(--bd2); padding-left: 10px; }
+.hist-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.hist-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tx);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hist-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.hist-card-date { font-size: 11px; color: var(--tx2); }
+.hist-card-menu {
+  background: none;
+  border: none;
+  color: var(--tx2);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 2px;
+  letter-spacing: 1px;
+  transition: color .12s;
+}
+.hist-card-menu:hover { color: var(--rd); }
+.hist-card-preview {
+  font-size: 12px;
+  color: var(--tx2);
+  line-height: 1.65;
+  border-left: 2px solid var(--bd2);
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+.hist-preview-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .hist-preview-role { font-weight: 600; color: var(--tx3); }
-.hist-card-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.hist-card-actions { display: flex; justify-content: flex-end; }
+.hist-open-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--rs);
+  background: var(--ac);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: opacity .13s;
+}
+.hist-open-btn:hover { opacity: .85; }
 
 /* ══════════════════════════════════════
    ASSISTENTE DE VOZ
