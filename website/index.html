@@ -745,6 +745,8 @@ function renderHistorico(filtro = '') {
   const list = document.getElementById('hist-list');
   if (!list) return;
 
+  console.log('Sessions:', S.chatSessions.length); // debug
+
   const sessions = filtro
     ? S.chatSessions.filter(s =>
         s.title.toLowerCase().includes(filtro.toLowerCase()) ||
@@ -759,26 +761,13 @@ function renderHistorico(filtro = '') {
     return;
   }
 
-  list.innerHTML = `<div class="hist-grid">${sessions.map(s => {
+  const cards = sessions.map(s => {
     const preview = s.hist.slice(0, 2).map(m =>
-      `<div class="hist-preview-line"><span class="hist-preview-role">${m.role === 'user' ? 'Você' : S.aiConfig.nome}:</span> ${m.content.slice(0, 90)}${m.content.length > 90 ? '…' : ''}</div>`
+      `<div class="hist-preview-line"><span class="hist-preview-role">${m.role === 'user' ? 'Você' : (S.aiConfig.nome || 'IA')}:</span> ${m.content.slice(0, 90)}${m.content.length > 90 ? '…' : ''}</div>`
     ).join('');
     return `
       <div class="hist-card${s.id === S.currentSessionId ? ' hist-active' : ''}">
         <div class="hist-card-top">
-          <div class="hist-card-title">${s.title}</div>
-          <div class="hist-card-meta">
-            <span class="hist-card-date">${fmtTs(s.ts)}</span>
-            <button class="hist-card-menu" onclick="deleteSession('${s.id}')" title="Apagar">⋯</button>
-          </div>
-        </div>
-        <div class="hist-card-preview">${preview}</div>
-        <div class="hist-card-actions">
-          <button class="hist-open-btn" onclick="loadSession('${s.id}')">Abrir conversa →</button>
-        </div>
-      </div>`;
-  }).join('')}</div>`;
-}
 // ══════════════════════════════════════════════════
 // SESSÕES DE CHAT
 // ══════════════════════════════════════════════════
