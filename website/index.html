@@ -149,21 +149,17 @@
       </div>
     </div>
 
-    <!-- ── HISTÓRICO ── -->
-    <div class="panel panel-historico" id="p-historico">
-      <div class="hist-header">
-        <div class="hist-info" id="hist-info">0 conversas salvas</div>
-        <button class="btn danger" onclick="clearAllChats()" style="font-size:11px">🗑 Apagar tudo</button>
-      </div>
-      <div class="hist-search-wrap">
-        <input class="field hist-search" id="hist-search"
-          placeholder="Buscar nas conversas..."
-          oninput="renderHistorico(this.value)"/>
-      </div>
-      <div class="hist-list" id="hist-list">
-        <div class="hist-empty">Nenhuma conversa salva ainda.<br>Inicie um chat e ele aparecerá aqui.</div>
-      </div>
-    </div>
+  <!-- ── HISTÓRICO ── -->
+<div class="panel panel-historico" id="p-historico">
+  <div class="hist-search-wrap">
+    <input class="field hist-search" id="hist-search"
+      placeholder="Buscar nas conversas..."
+      oninput="renderHistorico(this.value)"/>
+  </div>
+  <div class="hist-list" id="hist-list">
+    <div class="hist-empty">Nenhuma conversa salva ainda.<br>Inicie um chat e ele aparecerá aqui.</div>
+  </div>
+</div>
 
     <!-- ── AGENDA ── -->
     <div class="panel panel-agenda" id="p-agenda">
@@ -745,18 +741,8 @@ function showToast(msg, type = 'ok') {
 // ══════════════════════════════════════════════════
 // HISTÓRICO
 // ══════════════════════════════════════════════════
-function fmtTs(ts) {
-  if (!ts) return '';
-  const d = new Date(ts), hoje = new Date(), diff = hoje - d;
-  if (diff < 60000)    return 'agora';
-  if (diff < 3600000)  return Math.floor(diff / 60000) + 'min atrás';
-  if (diff < 86400000) return Math.floor(diff / 3600000) + 'h atrás';
-  return `${d.getDate()} ${MOS3[d.getMonth()]}`;
-}
-
 function renderHistorico(filtro = '') {
   const list = document.getElementById('hist-list');
-  const info = document.getElementById('hist-info');
   if (!list) return;
 
   const sessions = filtro
@@ -766,8 +752,6 @@ function renderHistorico(filtro = '') {
       )
     : S.chatSessions;
 
-  if (info) info.textContent = `${S.chatSessions.length} conversa${S.chatSessions.length !== 1 ? 's' : ''} salva${S.chatSessions.length !== 1 ? 's' : ''}`;
-
   if (!sessions.length) {
     list.innerHTML = `<div class="hist-empty">${
       filtro ? 'Nenhuma conversa encontrada.' : 'Nenhuma conversa salva ainda.<br>Inicie um chat e ele aparecerá aqui.'
@@ -775,28 +759,26 @@ function renderHistorico(filtro = '') {
     return;
   }
 
-  list.innerHTML = sessions.map(s => {
+  list.innerHTML = `<div class="hist-grid">${sessions.map(s => {
     const preview = s.hist.slice(0, 2).map(m =>
-      `<span class="hist-preview-role">${m.role === 'user' ? 'Você' : S.aiConfig.nome}:</span> ${m.content.slice(0, 80)}${m.content.length > 80 ? '…' : ''}`
-    ).join('<br>');
+      `<div class="hist-preview-line"><span class="hist-preview-role">${m.role === 'user' ? 'Você' : S.aiConfig.nome}:</span> ${m.content.slice(0, 90)}${m.content.length > 90 ? '…' : ''}</div>`
+    ).join('');
     return `
       <div class="hist-card${s.id === S.currentSessionId ? ' hist-active' : ''}">
         <div class="hist-card-top">
           <div class="hist-card-title">${s.title}</div>
           <div class="hist-card-meta">
             <span class="hist-card-date">${fmtTs(s.ts)}</span>
-            <span class="hist-card-count">${s.hist.filter(m => m.role === 'user').length} msgs</span>
+            <button class="hist-card-menu" onclick="deleteSession('${s.id}')" title="Apagar">⋯</button>
           </div>
         </div>
         <div class="hist-card-preview">${preview}</div>
         <div class="hist-card-actions">
-          <button class="btn pr" style="font-size:11px;padding:4px 10px" onclick="loadSession('${s.id}')">Abrir conversa →</button>
-          <button class="btn danger" style="font-size:11px;padding:4px 10px" onclick="deleteSession('${s.id}')">Apagar</button>
+          <button class="hist-open-btn" onclick="loadSession('${s.id}')">Abrir conversa →</button>
         </div>
       </div>`;
-  }).join('');
+  }).join('')}</div>`;
 }
-
 // ══════════════════════════════════════════════════
 // SESSÕES DE CHAT
 // ══════════════════════════════════════════════════
