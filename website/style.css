@@ -165,7 +165,7 @@ body {
    MAIN LAYOUT
 ══════════════════════════════════════ */
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-.content { flex: 1; overflow-y: auto; padding: 0; }
+.content { flex: 1; overflow-y: auto; padding: 0; min-height: 0; }
 .panel { display: none; }
 .panel.on { display: flex; flex-direction: column; }
 
@@ -202,7 +202,7 @@ select.field option { background: var(--bg2); }
    CHAT
 ══════════════════════════════════════ */
 .panel-chat.on {
-  height: 100vh;
+  height: 100%;
   align-items: center;
   overflow: hidden;
 }
@@ -1110,30 +1110,20 @@ body.light .sb .nav-bd       { background: #1e0808; }
   /* FIX: overlay visível ao abrir sidebar */
   .sb-overlay.mob-open { display: block; }
 
-  /* ── Layout principal ── */
+  /* ── Layout principal ──
+     A topbar (48px) + content (flex:1) já se arranjam pela coluna flex do .main.
+     Nenhum painel precisa de height manual — eles herdam 100% do .content. */
   .main { width: 100%; }
-  /* FIX: content não pode crescer além da tela descontando a topbar */
-  .content { height: calc(100vh - 48px); overflow: hidden; }
 
   /* ── Chat ── */
-  /* FIX: altura descontando a topbar mobile */
-  .panel-chat.on {
-    height: calc(100vh - 48px);
-    /* FIX: impede que o chat "empurre" ou sobreponha a topbar */
-    max-height: calc(100vh - 48px);
-    overflow: hidden;
-  }
+  /* height: 100% herdado do .content — não precisa de calc */
+  .panel-chat.on { height: 100%; overflow: hidden; }
   .chat-col { padding: 0 12px; }
   .chat-greeting { font-size: 22px; }
   .msg-bub-u { max-width: 88%; }
 
   /* ── Agenda ── */
-  .panel-agenda.on {
-    padding: 12px;
-    justify-content: flex-start;
-    align-items: stretch;
-    height: calc(100vh - 48px);
-  }
+  .panel-agenda.on { padding: 12px; justify-content: flex-start; align-items: stretch; }
   .agenda-inner { flex-direction: column; gap: 12px; }
   .agenda-left, .agenda-right { flex: unset; width: 100%; min-width: 0; }
   .cal-d { font-size: 10px; border-radius: 6px; padding: 4px; }
@@ -1141,41 +1131,22 @@ body.light .sb .nav-bd       { background: #1e0808; }
   .cal-t { font-size: 12px; }
 
   /* ── Tarefas Kanban ── */
-  .panel-tarefas.on {
-    padding: 10px; gap: 8px;
-    /* FIX: mobile precisa de scroll vertical */
-    overflow-y: auto;
-    height: calc(100vh - 48px);
-  }
-  /* FIX: kanban empilha colunas no mobile */
-  .kb-board {
-    grid-template-columns: 1fr;
-    overflow-y: visible;
-    flex: unset;
-    min-height: unset;
-  }
+  .panel-tarefas.on { padding: 10px; gap: 8px; overflow-y: auto; }
+  .kb-board { grid-template-columns: 1fr; overflow-y: visible; flex: unset; min-height: unset; }
   .kb-col { min-height: unset; }
   .kb-cards { max-height: 260px; }
   .kb-add-bar { gap: 5px; }
   .kb-add-bar select.field { width: 84px; font-size: 11px; }
 
   /* ── Flashcards ── */
-  .panel-flashcards.on {
-    padding: 12px; gap: 10px;
-    height: calc(100vh - 48px);
-    overflow-y: auto;
-  }
+  .panel-flashcards.on { padding: 12px; gap: 10px; overflow-y: auto; }
   .fc { padding: 14px; }
   .fc-q { font-size: 13px; }
   .fc-tb { gap: 6px; }
   .fc-tb .field { font-size: 12px; }
 
   /* ── Progresso ── */
-  .panel-progresso.on {
-    padding: 12px; gap: 12px;
-    height: calc(100vh - 48px);
-    overflow-y: auto;
-  }
+  .panel-progresso.on { padding: 12px; gap: 12px; overflow-y: auto; }
   .stats-g { grid-template-columns: repeat(3, 1fr); gap: 6px; }
   .stat-v { font-size: 18px; }
   .stat-c { padding: 10px 10px; }
@@ -1183,28 +1154,17 @@ body.light .sb .nav-bd       { background: #1e0808; }
   .pizza-wrap { flex-direction: row; flex-wrap: wrap; justify-content: center; }
 
   /* ── Histórico ── */
-  .panel-historico.on {
-    padding: 12px; gap: 10px;
-    height: calc(100vh - 48px);
-    overflow-y: auto;
-  }
+  .panel-historico.on { padding: 12px; gap: 10px; overflow-y: auto; }
   .hist-grid { grid-template-columns: 1fr; }
 
   /* ── Configurações ── */
-  .panel-config.on {
-    padding: 12px; gap: 10px;
-    height: calc(100vh - 48px);
-    overflow-y: auto;
-  }
+  .panel-config.on { padding: 12px; gap: 10px; overflow-y: auto; }
   .cfg-row { flex-direction: column; align-items: flex-start; gap: 8px; }
   .api-row { width: 100%; justify-content: flex-start; }
   .api-row .field { flex: 1; min-width: 0; }
 
   /* ── Conquistas ── */
-  .panel-conquistas.on {
-    height: calc(100vh - 48px);
-    overflow-y: auto;
-  }
+  .panel-conquistas.on { overflow-y: auto; }
   .ach-wrap { padding: 12px 10px 24px; gap: 12px; }
   .ach-hero { flex-direction: column; align-items: flex-start; gap: 12px; }
   .ach-hero-stats { width: 100%; justify-content: space-between; }
@@ -1213,10 +1173,7 @@ body.light .sb .nav-bd       { background: #1e0808; }
   .ach-grid { grid-template-columns: 1fr; }
 
   /* ── Assistente de Voz ── */
-  .panel-voz.on {
-    padding: 16px; gap: 16px;
-    height: calc(100vh - 48px);
-  }
+  .panel-voz.on { padding: 16px; gap: 16px; }
   .voz-avatar { width: 120px; height: 120px; }
   .voz-avatar svg { width: 120px; height: 120px; }
 
