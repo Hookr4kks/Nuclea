@@ -165,11 +165,9 @@ body {
    MAIN LAYOUT
 ══════════════════════════════════════ */
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-/* .content vira coluna flex para que os painéis possam usar height:100% corretamente */
-.content { flex: 1; overflow: hidden; padding: 0; min-height: 0; display: flex; flex-direction: column; }
+.content { flex: 1; overflow-y: auto; padding: 0; min-height: 0; }
 .panel { display: none; }
-/* Cada painel ocupa todo o espaço do .content */
-.panel.on { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
+.panel.on { display: flex; flex-direction: column; }
 
 /* ══════════════════════════════════════
    SHARED
@@ -204,7 +202,7 @@ select.field option { background: var(--bg2); }
    CHAT
 ══════════════════════════════════════ */
 .panel-chat.on {
-  /* flex:1 e min-height:0 já vêm de .panel.on — só precisa centralizar */
+  height: 100vh;
   align-items: center;
   overflow: hidden;
 }
@@ -1070,31 +1068,7 @@ body.light .sb .nav-bd       { background: #1e0808; }
 @media (max-width: 640px) {
   body { overflow: hidden; }
 
-  /* ── Topbar mobile ── */
-  .mob-topbar {
-    display: flex;           /* FIX: estava sempre display:none */
-    align-items: center;
-    height: 48px;
-    padding: 0 12px;
-    border-bottom: 1px solid var(--sb-bd);
-    background: var(--sb-bg);
-    flex-shrink: 0;
-    gap: 10px;
-    z-index: 30;
-  }
-  .mob-menu-btn {
-    width: 34px; height: 34px;
-    background: none; border: 1px solid var(--bd2); border-radius: 8px;
-    cursor: pointer; color: var(--tx);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0;
-  }
-  .mob-title {
-    font-size: 15px; font-weight: 600; color: var(--tx); flex: 1;
-  }
-  .mob-title span { color: var(--ac); }
-
-  /* ── Sidebar vira drawer deslizante ── */
+  /* ── Sidebar vira drawer ── */
   .sb {
     position: fixed;
     top: 0; left: 0; height: 100%;
@@ -1106,25 +1080,45 @@ body.light .sb .nav-bd       { background: #1e0808; }
     transition: transform .25s ease;
   }
   .sb.mob-open { transform: translateX(0); }
-  /* Quando colapsada no desktop, no mobile continua hidden */
   .sb.col { transform: translateX(-100%); }
-
-  /* FIX: overlay visível ao abrir sidebar */
   .sb-overlay.mob-open { display: block; }
 
-  /* ── Layout principal ──
-     A topbar (48px) + content (flex:1) já se arranjam pela coluna flex do .main.
-     Nenhum painel precisa de height manual — eles herdam 100% do .content. */
-  .main { width: 100%; }
+  /* ── Topbar fixa no topo ── */
+  .mob-topbar {
+    display: flex;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--sb-bd);
+    background: var(--sb-bg);
+    z-index: 30;
+    gap: 10px;
+    align-items: center;
+  }
+  .mob-menu-btn {
+    width: 34px; height: 34px;
+    background: none; border: 1px solid var(--bd2); border-radius: 8px;
+    cursor: pointer; color: var(--tx);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .mob-title { font-size: 15px; font-weight: 600; color: var(--tx); flex: 1; }
+  .mob-title span { color: var(--ac); }
 
-  /* ── Chat ── */
-  /* overflow: hidden para o chat não rolar a página toda — scroll fica no .chat-msgs */
-  .panel-chat.on { overflow: hidden; }
+  /* ── Main empurrado pra baixo da topbar fixa ── */
+  .main { width: 100%; padding-top: 48px; }
+
+  /* ── Chat: altura total menos a topbar ── */
+  .panel-chat.on {
+    height: calc(100vh - 48px) !important;
+  }
+
+  /* ── Demais painéis ── */
   .chat-col { padding: 0 12px; }
   .chat-greeting { font-size: 22px; }
   .msg-bub-u { max-width: 88%; }
 
-  /* ── Agenda ── */
   .panel-agenda.on { padding: 12px; justify-content: flex-start; align-items: stretch; }
   .agenda-inner { flex-direction: column; gap: 12px; }
   .agenda-left, .agenda-right { flex: unset; width: 100%; min-width: 0; }
@@ -1132,7 +1126,6 @@ body.light .sb .nav-bd       { background: #1e0808; }
   .cal-dn { font-size: 9px; padding: 4px 0; }
   .cal-t { font-size: 12px; }
 
-  /* ── Tarefas Kanban ── */
   .panel-tarefas.on { padding: 10px; gap: 8px; overflow-y: auto; }
   .kb-board { grid-template-columns: 1fr; overflow-y: visible; flex: unset; min-height: unset; }
   .kb-col { min-height: unset; }
@@ -1140,32 +1133,27 @@ body.light .sb .nav-bd       { background: #1e0808; }
   .kb-add-bar { gap: 5px; }
   .kb-add-bar select.field { width: 84px; font-size: 11px; }
 
-  /* ── Flashcards ── */
   .panel-flashcards.on { padding: 12px; gap: 10px; overflow-y: auto; }
   .fc { padding: 14px; }
   .fc-q { font-size: 13px; }
   .fc-tb { gap: 6px; }
   .fc-tb .field { font-size: 12px; }
 
-  /* ── Progresso ── */
   .panel-progresso.on { padding: 12px; gap: 12px; overflow-y: auto; }
   .stats-g { grid-template-columns: repeat(3, 1fr); gap: 6px; }
   .stat-v { font-size: 18px; }
-  .stat-c { padding: 10px 10px; }
+  .stat-c { padding: 10px; }
   .prog-charts { grid-template-columns: 1fr; gap: 14px; }
   .pizza-wrap { flex-direction: row; flex-wrap: wrap; justify-content: center; }
 
-  /* ── Histórico ── */
   .panel-historico.on { padding: 12px; gap: 10px; overflow-y: auto; }
   .hist-grid { grid-template-columns: 1fr; }
 
-  /* ── Configurações ── */
   .panel-config.on { padding: 12px; gap: 10px; overflow-y: auto; }
   .cfg-row { flex-direction: column; align-items: flex-start; gap: 8px; }
   .api-row { width: 100%; justify-content: flex-start; }
   .api-row .field { flex: 1; min-width: 0; }
 
-  /* ── Conquistas ── */
   .panel-conquistas.on { overflow-y: auto; }
   .ach-wrap { padding: 12px 10px 24px; gap: 12px; }
   .ach-hero { flex-direction: column; align-items: flex-start; gap: 12px; }
@@ -1174,15 +1162,11 @@ body.light .sb .nav-bd       { background: #1e0808; }
   .ach-hstat-val { font-size: 18px; }
   .ach-grid { grid-template-columns: 1fr; }
 
-  /* ── Assistente de Voz ── */
   .panel-voz.on { padding: 16px; gap: 16px; }
   .voz-avatar { width: 120px; height: 120px; }
   .voz-avatar svg { width: 120px; height: 120px; }
 
-  /* ── Toasts ── */
   .toast { left: 12px; right: 12px; max-width: unset; bottom: 12px; }
   .ach-toast { left: 12px; right: 12px; max-width: unset; bottom: 12px; }
-
-  /* ── Date picker não sai da tela ── */
   .date-pick-pop { left: auto; right: 0; }
 }
