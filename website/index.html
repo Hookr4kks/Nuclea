@@ -122,7 +122,13 @@
   </div>
 </aside>
 
+<div class="sb-overlay" id="sb-overlay" onclick="closeMobSb()"></div>
+
 <div class="main">
+  <div class="mob-topbar" id="mob-topbar">
+  <button class="mob-menu-btn" onclick="openMobSb()">☰</button>
+  <div class="mob-title">Nu<span>clea</span>AI</div>
+</div>
   <div class="content">
 
     <!-- CHAT -->
@@ -540,6 +546,15 @@
 
 <script src="config.js"></script>
 <script>
+
+function openMobSb() {
+  document.getElementById('sb').classList.add('mob-open');
+  document.getElementById('sb-overlay').classList.add('mob-open');
+}
+function closeMobSb() {
+  document.getElementById('sb').classList.remove('mob-open');
+  document.getElementById('sb-overlay').classList.remove('mob-open');
+}
 
 // ══════════════════════════════════════════════════
 // STATE
