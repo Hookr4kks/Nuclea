@@ -298,7 +298,7 @@ select.field option { background: var(--bg2); }
 
 .agenda-inner {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1000px;
   display: flex;
   flex-direction: row;
   gap: 16px;
@@ -307,7 +307,7 @@ select.field option { background: var(--bg2); }
 
 .agenda-left {
   flex-shrink: 0;
-  width: 1000px;
+  width: 850px;
 }
 
 .agenda-right {
