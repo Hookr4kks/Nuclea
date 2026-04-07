@@ -1112,10 +1112,17 @@ body.light .sb .nav-bd       { background: #1e0808; }
 
   /* ── Layout principal ── */
   .main { width: 100%; }
+  /* FIX: content não pode crescer além da tela descontando a topbar */
+  .content { height: calc(100vh - 48px); overflow: hidden; }
 
   /* ── Chat ── */
   /* FIX: altura descontando a topbar mobile */
-  .panel-chat.on { height: calc(100vh - 48px); }
+  .panel-chat.on {
+    height: calc(100vh - 48px);
+    /* FIX: impede que o chat "empurre" ou sobreponha a topbar */
+    max-height: calc(100vh - 48px);
+    overflow: hidden;
+  }
   .chat-col { padding: 0 12px; }
   .chat-greeting { font-size: 22px; }
   .msg-bub-u { max-width: 88%; }
