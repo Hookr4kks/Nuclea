@@ -353,7 +353,7 @@ select.field option { background: var(--bg2); }
   align-items: flex-start;
   justify-content: flex-end;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: 17px;
   cursor: pointer;
   transition: background .12s;
   position: relative;
