@@ -67,8 +67,13 @@
 
     <button class="nav-i" id="n-flashcards" onclick="go('flashcards',this)">
       <span class="nav-ic">
-        <img src="icons/layers.png" class="ic16" alt=""
-             onerror="this.replaceWith(document.createTextNode('🃏'))"/>
+        <!-- Ícone SVG de flashcard/layers -->
+        <svg class="ic16-svg" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="4" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M3.5 2.5h9a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <line x1="4" y1="7.5" x2="10" y2="7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="4" y1="10" x2="8" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
       </span>
       <span class="nav-lb">Flashcards</span>
     </button>
@@ -266,17 +271,52 @@
 
     <!-- FLASHCARDS -->
     <div class="panel panel-flashcards" id="p-flashcards">
+      <!-- Barra principal: tema + controles inline + botões -->
       <div class="fc-tb">
         <input class="field" id="fc-tema"
-          placeholder="Tema (ex: Fotossíntese, Revolução Francesa, Álgebra...)"
-          style="flex:1;min-width:180px"/>
+          placeholder="Tema (ex: Fotossíntese, Revolução Francesa...)"
+          style="flex:1;min-width:160px"/>
+
+        <!-- Controles inline de configuração rápida -->
+        <div class="fc-quick-controls">
+          <div class="fc-qc-group">
+            <span class="fc-qc-label">Cartões</span>
+            <div class="fc-qc-stepper">
+              <button class="fc-step-btn" onclick="fcStepQtd(-1)">−</button>
+              <span class="fc-step-val" id="fc-qtd-inline">5</span>
+              <button class="fc-step-btn" onclick="fcStepQtd(1)">+</button>
+            </div>
+          </div>
+          <div class="fc-qc-divider"></div>
+          <div class="fc-qc-group">
+            <span class="fc-qc-label">Nível</span>
+            <div class="fc-dif-pills" id="fc-dif-pills">
+              <button class="fc-dif-pill active" data-v="basico" onclick="fcSetDif(this)">Básico</button>
+              <button class="fc-dif-pill" data-v="intermediario" onclick="fcSetDif(this)">Médio</button>
+              <button class="fc-dif-pill" data-v="avancado" onclick="fcSetDif(this)">Avançado</button>
+              <button class="fc-dif-pill" data-v="misto" onclick="fcSetDif(this)">Misto</button>
+            </div>
+          </div>
+        </div>
+
         <button class="btn pr" id="btn-gen" onclick="genFC()">⚡ Gerar com IA</button>
-        <button class="btn" onclick="resetDeck()">↺ Reiniciar</button>
+        <button class="btn" onclick="resetDeck()">↺</button>
       </div>
-      <div class="fc-config-bar" id="fc-config-bar"></div>
+
       <div class="fc-stage" id="fc-stage">
-        <div class="empty"><div class="empty-ic">🃏</div><strong>Nenhum flashcard</strong>
-          <p>Digite um tema e clique em Gerar com IA</p></div>
+        <div class="empty">
+          <div class="empty-ic">
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="10" width="30" height="22" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.35"/>
+              <rect x="8" y="6" width="30" height="22" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/>
+              <rect x="12" y="14" width="28" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="var(--bg2)"/>
+              <line x1="18" y1="21" x2="34" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="18" y1="26" x2="30" y2="26" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <strong>Nenhum flashcard</strong>
+          <p>Digite um tema e clique em Gerar com IA</p>
+        </div>
       </div>
     </div>
 
@@ -451,13 +491,13 @@
           <div><div class="cfg-l">Quantidade por geração</div><div class="cfg-s">Quantos flashcards criar por tema</div></div>
           <div style="display:flex;align-items:center;gap:10px">
             <input type="range" id="fc-qtd-range" min="3" max="10" value="5" style="width:110px"
-              oninput="document.getElementById('fc-qtd-val').textContent=this.value"/>
+              oninput="document.getElementById('fc-qtd-val').textContent=this.value;syncFCInlineQtd(this.value)"/>
             <span class="cfg-badge" id="fc-qtd-val">5</span>
           </div>
         </div>
         <div class="cfg-row">
           <div><div class="cfg-l">Dificuldade padrão</div><div class="cfg-s">Nível de complexidade das perguntas</div></div>
-          <select class="field" id="fc-dif" style="width:160px">
+          <select class="field" id="fc-dif" style="width:160px" onchange="syncFCInlineDif(this.value)">
             <option value="basico">Básico</option>
             <option value="intermediario" selected>Intermediário</option>
             <option value="avancado">Avançado</option>
@@ -573,11 +613,10 @@ var S = {
   selColor: '#6c8ef5',
   dpY: 0, dpM: 0, dpSel: '',
   aiConfig: { nome: 'Núclea', tom: 'didatico', idioma: 'pt-BR', extra: '' },
-  fcConfig: { qtd: 5, dif: 'intermediario', tipoDireto: true, tipoMC: true },
+  fcConfig: { qtd: 5, dif: 'basico', tipoDireto: true, tipoMC: true },
   elConfig: { key: '', voiceId: '', motor: 'browser' }
 };
 
-// inicializa apiKey do config.js com segurança
 try {
   if (typeof CONFIG !== 'undefined' && CONFIG.MISTRAL_API_KEY && CONFIG.MISTRAL_API_KEY !== 'SUA_CHAVE_AQUI') {
     S.apiKey = CONFIG.MISTRAL_API_KEY;
@@ -631,7 +670,7 @@ function loadLS() {
     if (raw) { try { var ai = JSON.parse(raw); S.aiConfig = { nome:'Núclea', tom:'didatico', idioma:'pt-BR', extra:'', ...ai }; } catch(e) {} }
 
     raw = localStorage.getItem('fl_fcConfig');
-    if (raw) { try { var fc = JSON.parse(raw); S.fcConfig = { qtd:5, dif:'intermediario', tipoDireto:true, tipoMC:true, ...fc }; } catch(e) {} }
+    if (raw) { try { var fc = JSON.parse(raw); S.fcConfig = { qtd:5, dif:'basico', tipoDireto:true, tipoMC:true, ...fc }; } catch(e) {} }
 
     raw = localStorage.getItem('fl_elConfig');
     if (raw) { try { var el = JSON.parse(raw); S.elConfig = { key:'', voiceId:'', motor:'browser', ...el }; } catch(e) {} }
@@ -687,7 +726,6 @@ function renderHistorico(filtro) {
   var list = document.getElementById('hist-list');
   if (!list) return;
 
-  // filtra sessões
   var sessions;
   if (filtro === '') {
     sessions = S.chatSessions;
@@ -706,7 +744,6 @@ function renderHistorico(filtro) {
     }
   }
 
-  // sem resultados
   if (sessions.length === 0) {
     list.innerHTML = '';
     var empty = document.createElement('div');
@@ -716,7 +753,6 @@ function renderHistorico(filtro) {
     return;
   }
 
-  // monta grid
   list.innerHTML = '';
   var grid = document.createElement('div');
   grid.className = 'hist-grid';
@@ -726,7 +762,6 @@ function renderHistorico(filtro) {
     var card = document.createElement('div');
     card.className = 'hist-card' + (s.id === S.currentSessionId ? ' hist-active' : '');
 
-    // topo
     var top = document.createElement('div');
     top.className = 'hist-card-top';
 
@@ -754,7 +789,6 @@ function renderHistorico(filtro) {
     top.appendChild(titleEl);
     top.appendChild(meta);
 
-    // preview
     var preview = document.createElement('div');
     preview.className = 'hist-card-preview';
     var msgs = s.hist ? s.hist.slice(0, 2) : [];
@@ -772,7 +806,6 @@ function renderHistorico(filtro) {
       preview.appendChild(line);
     }
 
-    // botão abrir
     var actions = document.createElement('div');
     actions.className = 'hist-card-actions';
     var openBtn = document.createElement('button');
@@ -988,6 +1021,43 @@ function addTyping() {
 function delTyping(id) { var e = document.getElementById(id); if (e) e.remove(); }
 
 // ══════════════════════════════════════════════════
+// FLASHCARDS — controles inline
+// ══════════════════════════════════════════════════
+function fcStepQtd(dir) {
+  var cur = S.fcConfig.qtd;
+  var next = Math.min(10, Math.max(3, cur + dir));
+  S.fcConfig.qtd = next;
+  document.getElementById('fc-qtd-inline').textContent = next;
+  var rng = document.getElementById('fc-qtd-range');
+  var val = document.getElementById('fc-qtd-val');
+  if (rng) rng.value = next;
+  if (val) val.textContent = next;
+  saveLS();
+}
+
+function fcSetDif(btn) {
+  S.fcConfig.dif = btn.dataset.v;
+  document.querySelectorAll('.fc-dif-pill').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var sel = document.getElementById('fc-dif');
+  if (sel) sel.value = btn.dataset.v;
+  saveLS();
+}
+
+function syncFCInlineQtd(val) {
+  S.fcConfig.qtd = parseInt(val) || 5;
+  var el = document.getElementById('fc-qtd-inline');
+  if (el) el.textContent = S.fcConfig.qtd;
+}
+
+function syncFCInlineDif(val) {
+  S.fcConfig.dif = val;
+  document.querySelectorAll('.fc-dif-pill').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.v === val);
+  });
+}
+
+// ══════════════════════════════════════════════════
 // FLASHCARDS
 // ══════════════════════════════════════════════════
 async function genFC() {
@@ -995,7 +1065,7 @@ async function genFC() {
   if (!tema) { showToast('Digite um tema!', 'err'); return; }
   var btn = document.getElementById('btn-gen');
   btn.disabled = true; btn.textContent = '⏳ Gerando...';
-  setStage('<div class="empty"><div class="empty-ic">⏳</div><strong>Gerando flashcards...</strong></div>');
+  setStage('<div class="empty"><div class="empty-ic"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="10" width="30" height="22" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.35"/><rect x="8" y="6" width="30" height="22" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/><rect x="12" y="14" width="28" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="var(--bg2)"/><line x1="18" y1="21" x2="34" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="18" y1="26" x2="30" y2="26" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><strong>Gerando flashcards...</strong></div>');
 
   var cfg = S.fcConfig;
   var qtd = Math.min(cfg.qtd, 10);
@@ -1043,7 +1113,7 @@ async function genFC() {
   var total = nDir + nMC;
 
   try {
-    setStage('<div class="empty"><div class="empty-ic">⏳</div><strong>Mapeando subtópicos de "' + tema + '"...</strong></div>');
+    setStage('<div class="empty"><div class="empty-ic" style="opacity:.5"><svg width="44" height="44" viewBox="0 0 44 44" fill="none"><rect x="4" y="10" width="30" height="22" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.35"/><rect x="8" y="6" width="30" height="22" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/><rect x="12" y="14" width="28" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="var(--bg2)"/></svg></div><strong>Mapeando subtópicos de "' + tema + '"...</strong></div>');
     var subtopicos = await gerarSubtopicos(total);
     if (!subtopicos || subtopicos.length < total) {
       subtopicos = [];
@@ -1052,7 +1122,7 @@ async function genFC() {
     subtopicos = subtopicos.sort(function() { return Math.random() - 0.5; });
 
     for (var i = 0; i < nDir; i++) {
-      setStage('<div class="empty"><div class="empty-ic">⏳</div><strong>Gerando carta ' + (allCards.length+1) + ' de ' + total + '...</strong></div>');
+      setStage('<div class="empty"><strong>Gerando carta ' + (allCards.length+1) + ' de ' + total + '...</strong></div>');
       var evitar = S._fcGeradas.length ? '\nNÃO crie perguntas similares a: ' + S._fcGeradas.slice(-8).join(' | ') : '';
       var prompt = 'Tema geral: "' + tema + '"\nSubtópico: "' + subtopicos[i] + '"\n' + difLabel(dif,i) + evitar + '\nCrie 1 flashcard de PERGUNTA DIRETA.\nSomente este JSON:\n{"tipo":"direto","pergunta":"...","resposta":"...","dica":"..."}';
       var raw = await callAI(prompt);
@@ -1064,7 +1134,7 @@ async function genFC() {
     for (var i = 0; i < nMC; i++) {
       var si = nDir + i;
       var letra = letrasRotacao[i % letrasRotacao.length];
-      setStage('<div class="empty"><div class="empty-ic">⏳</div><strong>Gerando carta ' + (allCards.length+1) + ' de ' + total + '...</strong></div>');
+      setStage('<div class="empty"><strong>Gerando carta ' + (allCards.length+1) + ' de ' + total + '...</strong></div>');
       var evitar = S._fcGeradas.length ? '\nNÃO crie perguntas similares a: ' + S._fcGeradas.slice(-8).join(' | ') : '';
       var prompt = 'Tema geral: "' + tema + '"\nSubtópico: "' + subtopicos[si] + '"\n' + difLabel(dif,i) + evitar + '\nCrie 1 questão MÚLTIPLA ESCOLHA. Correta: ' + letra + '.\nSomente este JSON:\n{"tipo":"multipla_escolha","pergunta":"...","alternativas":["A) ...","B) ...","C) ...","D) ..."],"resposta_correta":"' + letra + '","resposta":"..."}';
       var raw = await callAI(prompt);
@@ -1086,7 +1156,7 @@ async function genFC() {
     checkAchievements();
   } catch(e) {
     delete S._fcGeradas;
-    setStage('<div class="empty"><div class="empty-ic">❌</div><strong>Erro ao gerar</strong><p>' + e.message + '</p></div>');
+    setStage('<div class="empty"><strong>Erro ao gerar</strong><p>' + e.message + '</p></div>');
     showToast('Erro: ' + e.message, 'err');
   }
   btn.disabled = false; btn.textContent = '⚡ Gerar com IA';
@@ -1146,14 +1216,14 @@ function regTent(ok, id, tema) {
 function nextFC() {
   S.fcIdx++; S.fcRev = false; S.fcSel = null;
   if (S.fcIdx >= S.fc.length) {
-    setStage('<div class="empty"><div class="empty-ic">🎉</div><strong>Deck concluído!</strong><p>Você completou ' + S.fc.length + ' cartões.</p><div style="margin-top:12px;display:flex;gap:7px;justify-content:center"><button class="btn" onclick="resetDeck()">↺ Recomeçar</button><button class="btn pr" onclick="genFC()">⚡ Gerar Mais</button></div></div>');
+    setStage('<div class="empty"><strong>Deck concluído!</strong><p>Você completou ' + S.fc.length + ' cartões.</p><div style="margin-top:12px;display:flex;gap:7px;justify-content:center"><button class="btn" onclick="resetDeck()">↺ Recomeçar</button><button class="btn pr" onclick="genFC()">⚡ Gerar Mais</button></div></div>');
     showToast('🎉 Deck completo!');
   } else renderCard();
 }
 
 function resetDeck() {
   S.fc = []; S.fcIdx = 0; S.fcRev = false;
-  setStage('<div class="empty"><div class="empty-ic">🃏</div><strong>Nenhum flashcard</strong><p>Digite um tema e gere com IA</p></div>');
+  setStage('<div class="empty"><div class="empty-ic"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="10" width="30" height="22" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.35"/><rect x="8" y="6" width="30" height="22" rx="3" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/><rect x="12" y="14" width="28" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="var(--bg2)"/><line x1="18" y1="21" x2="34" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="18" y1="26" x2="30" y2="26" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><strong>Nenhum flashcard</strong><p>Digite um tema e gere com IA</p></div>');
 }
 function clearFC() { resetDeck(); S.prog = { total:0, acertos:0, erros:0, temas:{} }; saveLS(); showToast('Flashcards e estatísticas limpos!'); }
 function setStage(h) { document.getElementById('fc-stage').innerHTML = h; }
@@ -1507,7 +1577,9 @@ function saveFCConfig() {
   S.fcConfig.dif        = document.getElementById('fc-dif').value;
   S.fcConfig.tipoDireto = document.getElementById('fc-tipo-direto').checked;
   S.fcConfig.tipoMC     = document.getElementById('fc-tipo-mc').checked;
-  updateFCConfigBar(); saveLS(); showToast('🃏 Configurações salvas!');
+  syncFCInlineQtd(S.fcConfig.qtd);
+  syncFCInlineDif(S.fcConfig.dif);
+  saveLS(); showToast('🃏 Configurações salvas!');
 }
 
 function saveELKey() {
@@ -1534,7 +1606,13 @@ function applyFCConfig() {
   var dif = document.getElementById('fc-dif'); if (dif) dif.value = c.dif;
   var d = document.getElementById('fc-tipo-direto'); if (d) d.checked = c.tipoDireto;
   var m = document.getElementById('fc-tipo-mc');     if (m) m.checked = c.tipoMC;
-  updateFCConfigBar();
+
+  // sincroniza controles inline
+  var inlineQtd = document.getElementById('fc-qtd-inline');
+  if (inlineQtd) inlineQtd.textContent = c.qtd;
+  document.querySelectorAll('.fc-dif-pill').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.v === c.dif);
+  });
 }
 
 function applyELConfig() {
@@ -1553,15 +1631,6 @@ function updateEngineBadge() {
   } else {
     badge.textContent = '🔊 Navegador'; badge.className = 'voz-engine-badge';
   }
-}
-
-function updateFCConfigBar() {
-  var bar = document.getElementById('fc-config-bar'); if (!bar) return;
-  var difMap = { basico:'Básico', intermediario:'Intermediário', avancado:'Avançado', misto:'Misto' };
-  bar.innerHTML = '<span class="fc-cfg-tag">' + S.fcConfig.qtd + ' cartões</span>' +
-    '<span class="fc-cfg-tag">' + (difMap[S.fcConfig.dif] || S.fcConfig.dif) + '</span>' +
-    (S.fcConfig.tipoDireto ? '<span class="fc-cfg-tag">Diretas</span>' : '') +
-    (S.fcConfig.tipoMC ? '<span class="fc-cfg-tag">Múltipla escolha</span>' : '');
 }
 
 // ══════════════════════════════════════════════════
@@ -1730,7 +1799,7 @@ var ACH_DEFS = [
   { id:'chat_10', cat:'chat', icon:'🔥', bg:'rgba(108,142,245,.15)', stripe:'#6c8ef5', name:'Curioso de Plantão', desc:'Faça 10 perguntas à IA.', xp:80, raro:'comum', prog: function(s){ return { cur: s.chatSessions.reduce(function(n,ss){ return n+ss.hist.filter(function(m){return m.role==='user';}).length; },0), max:10 }; }, check: function(s){ return s.chatSessions.reduce(function(n,ss){ return n+ss.hist.filter(function(m){return m.role==='user';}).length; },0) >= 10; } },
   { id:'chat_50', cat:'chat', icon:'🧠', bg:'rgba(108,142,245,.15)', stripe:'#6c8ef5', name:'Mente Inquieta', desc:'Faça 50 perguntas à IA no total.', xp:200, raro:'raro', prog: function(s){ return { cur: s.chatSessions.reduce(function(n,ss){ return n+ss.hist.filter(function(m){return m.role==='user';}).length; },0), max:50 }; }, check: function(s){ return s.chatSessions.reduce(function(n,ss){ return n+ss.hist.filter(function(m){return m.role==='user';}).length; },0) >= 50; } },
   { id:'chat_noite', cat:'chat', icon:'🌙', bg:'rgba(108,142,245,.15)', stripe:'#6c8ef5', name:'Estudante Noturno', desc:'Use o chat depois das 22h.', xp:60, raro:'comum', check: function(){ return new Date().getHours() >= 22 || !!localStorage.getItem('ach_chat_noite'); } },
-  { id:'fc_1', cat:'flashcard', icon:'🃏', bg:'rgba(109,40,217,.12)', stripe:'#a78bfa', name:'Primeiro Deck', desc:'Responda seu primeiro flashcard.', xp:50, raro:'comum', check: function(s){ return s.prog.total >= 1; } },
+  { id:'fc_1', cat:'flashcard', icon:'📚', bg:'rgba(109,40,217,.12)', stripe:'#a78bfa', name:'Primeiro Deck', desc:'Responda seu primeiro flashcard.', xp:50, raro:'comum', check: function(s){ return s.prog.total >= 1; } },
   { id:'fc_deck5', cat:'flashcard', icon:'⚡', bg:'rgba(109,40,217,.12)', stripe:'#a78bfa', name:'Gerador Veloz', desc:'Estude flashcards de 5 temas diferentes.', xp:100, raro:'comum', prog: function(s){ return { cur: Object.keys(s.prog.temas).length, max:5 }; }, check: function(s){ return Object.keys(s.prog.temas).length >= 5; } },
   { id:'fc_100', cat:'flashcard', icon:'🎖', bg:'rgba(109,40,217,.12)', stripe:'#a78bfa', name:'Centena de Cartas', desc:'Responda 100 flashcards no total.', xp:200, raro:'raro', prog: function(s){ return { cur:s.prog.total, max:100 }; }, check: function(s){ return s.prog.total >= 100; } },
   { id:'fc_70pct', cat:'flashcard', icon:'🎯', bg:'rgba(109,40,217,.12)', stripe:'#a78bfa', name:'Mira Certeira', desc:'Tenha 70% ou mais de taxa de acerto geral.', xp:150, raro:'raro', check: function(s){ return s.prog.total >= 10 && (s.prog.acertos/s.prog.total) >= .7; } },
