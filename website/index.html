@@ -67,13 +67,8 @@
 
     <button class="nav-i" id="n-flashcards" onclick="go('flashcards',this)">
       <span class="nav-ic">
-        <!-- Ícone SVG de flashcard/layers -->
-        <svg class="ic16-svg" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="1" y="4" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M3.5 2.5h9a1 1 0 0 1 1 1v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-          <line x1="4" y1="7.5" x2="10" y2="7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-          <line x1="4" y1="10" x2="8" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
+        <img src="icons/layers.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('🃏'))"/>
       </span>
       <span class="nav-lb">Flashcards</span>
     </button>
