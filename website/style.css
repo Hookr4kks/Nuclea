@@ -540,89 +540,6 @@ select.field option { background: var(--bg2); }
 /* ══════════════════════════════════════
    FLASHCARDS
 ══════════════════════════════════════ */
-/* ══════════════════════════════════════
-   FLASHCARDS — controles inline (quick controls)
-══════════════════════════════════════ */
-
-/* Ícone SVG no nav (substitui .ic16 para o flashcard) */
-.ic16-svg {
-  width: 16px; height: 16px; display: block; flex-shrink: 0;
-  color: var(--tx2); opacity: 0.5; transition: opacity .14s;
-}
-.nav-i:hover .ic16-svg,
-.nav-i.on .ic16-svg { opacity: 1; color: var(--tx); }
-
-/* Container de controles rápidos — fica inline na .fc-tb */
-.fc-quick-controls {
-  display: flex; align-items: center; gap: 0;
-  background: var(--bg2); border: 1px solid var(--bd2); border-radius: var(--rs);
-  padding: 0 2px; height: 32px; flex-shrink: 0;
-}
-
-.fc-qc-group {
-  display: flex; align-items: center; gap: 6px; padding: 0 10px;
-}
-
-.fc-qc-divider {
-  width: 1px; height: 18px; background: var(--bd2); flex-shrink: 0;
-}
-
-.fc-qc-label {
-  font-size: 10px; font-weight: 600; color: var(--tx2);
-  text-transform: uppercase; letter-spacing: .5px; white-space: nowrap;
-}
-
-/* Stepper de quantidade */
-.fc-qc-stepper {
-  display: flex; align-items: center; gap: 4px;
-}
-
-.fc-step-btn {
-  width: 20px; height: 20px; border-radius: 4px;
-  border: 1px solid var(--bd2); background: none;
-  color: var(--tx2); cursor: pointer; font-size: 14px; line-height: 1;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .12s, color .12s; font-family: 'Inter', sans-serif;
-}
-.fc-step-btn:hover { background: var(--bg3); color: var(--tx); }
-
-.fc-step-val {
-  font-size: 13px; font-weight: 600; color: var(--tx);
-  min-width: 18px; text-align: center;
-}
-
-/* Pills de dificuldade */
-.fc-dif-pills {
-  display: flex; gap: 2px;
-}
-
-.fc-dif-pill {
-  font-size: 11px; font-weight: 500; padding: 3px 8px;
-  border-radius: 4px; border: none; background: none;
-  color: var(--tx2); cursor: pointer; font-family: 'Inter', sans-serif;
-  transition: background .12s, color .12s; white-space: nowrap;
-}
-.fc-dif-pill:hover { background: var(--bg3); color: var(--tx3); }
-.fc-dif-pill.active {
-  background: rgba(108,142,245,0.15); color: var(--ac);
-  font-weight: 600;
-}
-
-/* Ícone vazio de flashcard (SVG no estado vazio) */
-.empty-ic svg {
-  color: var(--tx2);
-  display: block; margin: 0 auto;
-}
-
-/* Responsivo mobile: quick controls empilham */
-@media (max-width: 640px) {
-  .fc-quick-controls {
-    width: 100%; justify-content: space-between;
-    height: auto; padding: 5px 6px;
-  }
-  .fc-qc-group { padding: 0 6px; }
-  .fc-dif-pill { padding: 3px 6px; font-size: 10px; }
-}
 .panel-flashcards.on { padding: 18px; gap: 14px; }
 .fc-tb { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
 .fc-stage { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 6px 0; }
@@ -1252,4 +1169,87 @@ body.light .sb .nav-bd       { background: #1e0808; }
   .toast { left: 12px; right: 12px; max-width: unset; bottom: 12px; }
   .ach-toast { left: 12px; right: 12px; max-width: unset; bottom: 12px; }
   .date-pick-pop { left: auto; right: 0; }
+}
+/* ══════════════════════════════════════
+   FLASHCARDS — controles inline (quick controls)
+══════════════════════════════════════ */
+
+/* Ícone SVG no nav (substitui .ic16 para o flashcard) */
+.ic16-svg {
+  width: 16px; height: 16px; display: block; flex-shrink: 0;
+  color: var(--tx2); opacity: 0.5; transition: opacity .14s;
+}
+.nav-i:hover .ic16-svg,
+.nav-i.on .ic16-svg { opacity: 1; color: var(--tx); }
+
+/* Container de controles rápidos — fica inline na .fc-tb */
+.fc-quick-controls {
+  display: flex; align-items: center; gap: 0;
+  background: var(--bg2); border: 1px solid var(--bd2); border-radius: var(--rs);
+  padding: 0 2px; height: 32px; flex-shrink: 0;
+}
+
+.fc-qc-group {
+  display: flex; align-items: center; gap: 6px; padding: 0 10px;
+}
+
+.fc-qc-divider {
+  width: 1px; height: 18px; background: var(--bd2); flex-shrink: 0;
+}
+
+.fc-qc-label {
+  font-size: 10px; font-weight: 600; color: var(--tx2);
+  text-transform: uppercase; letter-spacing: .5px; white-space: nowrap;
+}
+
+/* Stepper de quantidade */
+.fc-qc-stepper {
+  display: flex; align-items: center; gap: 4px;
+}
+
+.fc-step-btn {
+  width: 20px; height: 20px; border-radius: 4px;
+  border: 1px solid var(--bd2); background: none;
+  color: var(--tx2); cursor: pointer; font-size: 14px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .12s, color .12s; font-family: 'Inter', sans-serif;
+}
+.fc-step-btn:hover { background: var(--bg3); color: var(--tx); }
+
+.fc-step-val {
+  font-size: 13px; font-weight: 600; color: var(--tx);
+  min-width: 18px; text-align: center;
+}
+
+/* Pills de dificuldade */
+.fc-dif-pills {
+  display: flex; gap: 2px;
+}
+
+.fc-dif-pill {
+  font-size: 11px; font-weight: 500; padding: 3px 8px;
+  border-radius: 4px; border: none; background: none;
+  color: var(--tx2); cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: background .12s, color .12s; white-space: nowrap;
+}
+.fc-dif-pill:hover { background: var(--bg3); color: var(--tx3); }
+.fc-dif-pill.active {
+  background: rgba(108,142,245,0.15); color: var(--ac);
+  font-weight: 600;
+}
+
+/* Ícone vazio de flashcard (SVG no estado vazio) */
+.empty-ic svg {
+  color: var(--tx2);
+  display: block; margin: 0 auto;
+}
+
+/* Responsivo mobile: quick controls empilham */
+@media (max-width: 640px) {
+  .fc-quick-controls {
+    width: 100%; justify-content: space-between;
+    height: auto; padding: 5px 6px;
+  }
+  .fc-qc-group { padding: 0 6px; }
+  .fc-dif-pill { padding: 3px 6px; font-size: 10px; }
 }
