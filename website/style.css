@@ -135,7 +135,7 @@ body {
     height: 24px;
     flex-shrink: 0;
     background: none;
-    border: 1px solid var(--bd2);
+    border: 0px solid var(--bd2);
     border-radius: 6px;
     cursor: pointer;
     color: var(--tx2);
