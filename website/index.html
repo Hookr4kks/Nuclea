@@ -266,13 +266,10 @@
 
     <!-- FLASHCARDS -->
     <div class="panel panel-flashcards" id="p-flashcards">
-      <!-- Barra principal: tema + controles inline + botões -->
       <div class="fc-tb">
         <input class="field" id="fc-tema"
           placeholder="Tema (ex: Fotossíntese, Revolução Francesa...)"
           style="flex:1;min-width:160px"/>
-
-        <!-- Controles inline de configuração rápida -->
         <div class="fc-quick-controls">
           <div class="fc-qc-group">
             <span class="fc-qc-label">Cartões</span>
@@ -293,7 +290,6 @@
             </div>
           </div>
         </div>
-
         <button class="btn pr" id="btn-gen" onclick="genFC()">⚡ Gerar com IA</button>
         <button class="btn" onclick="resetDeck()">↺</button>
       </div>
@@ -424,30 +420,53 @@
           </div>
         </div>
       </div>
+
+      <!-- ═══ CAMB.AI (substituindo ElevenLabs) ═══ -->
       <div class="cfg-card">
-        <div class="cfg-ti">🔊 ElevenLabs (Voz do Assistente)</div>
+        <div class="cfg-ti">🎙 camb.ai (Voz do Assistente)</div>
         <div class="cfg-row">
-          <div><div class="cfg-l">Chave de API</div><div class="cfg-s">elevenlabs.io → Profile → API Key</div></div>
+          <div>
+            <div class="cfg-l">Chave de API</div>
+            <div class="cfg-s">camb.ai → DubStudio → Profile → API Key</div>
+          </div>
           <div class="api-row">
-            <input class="field" id="el-key" type="password" placeholder="sk_..." style="width:200px"/>
+            <input class="field" id="el-key" type="password" placeholder="sua-api-key..." style="width:200px"/>
             <button class="btn pr" onclick="saveELKey()">Salvar</button>
           </div>
         </div>
         <div class="cfg-row">
-          <div><div class="cfg-l">Voice ID</div><div class="cfg-s">ID da voz no ElevenLabs</div></div>
+          <div>
+            <div class="cfg-l">Voice ID</div>
+            <div class="cfg-s">ID numérico da voz (ex: 147320)</div>
+          </div>
           <div class="api-row">
-            <input class="field" id="el-voice" placeholder="Ex: 21m00Tcm4TlvDq8ikWAM" style="width:200px"/>
+            <input class="field" id="el-voice" placeholder="Ex: 147320" style="width:200px"/>
             <button class="btn pr" onclick="saveELKey()">Salvar</button>
           </div>
         </div>
         <div class="cfg-row">
-          <div><div class="cfg-l">Motor de voz</div><div class="cfg-s">Qual sistema usar para falar</div></div>
+          <div>
+            <div class="cfg-l">Idioma</div>
+            <div class="cfg-s">Código de idioma para síntese (1 = Inglês, 2 = Português)</div>
+          </div>
+          <select class="field" id="camb-lang" style="width:200px" onchange="saveELKey()">
+            <option value="2">Português (2)</option>
+            <option value="1">English (1)</option>
+            <option value="3">Español (3)</option>
+          </select>
+        </div>
+        <div class="cfg-row">
+          <div>
+            <div class="cfg-l">Motor de voz</div>
+            <div class="cfg-s">Qual sistema usar para falar</div>
+          </div>
           <select class="field" id="el-motor" style="width:200px" onchange="saveELKey()">
             <option value="browser">Navegador (grátis, offline)</option>
-            <option value="elevenlabs">ElevenLabs (melhor qualidade)</option>
+            <option value="cambai">camb.ai (melhor qualidade)</option>
           </select>
         </div>
       </div>
+
       <div class="cfg-card">
         <div class="cfg-ti">🤖 Personalidade da IA</div>
         <div class="cfg-row">
@@ -535,24 +554,15 @@
 
     <!-- VOZ -->
     <div class="panel panel-voz" id="p-voz">
-      <div class="voz-stage">
-        <div class="voz-avatar" id="voz-avatar">
-          <svg viewBox="0 0 160 160" width="160" height="160">
-            <defs>
-              <radialGradient id="ag" cx="50%" cy="45%" r="50%">
-                <stop offset="0%" stop-color="#2d3a5e"/>
-                <stop offset="100%" stop-color="#0e1525"/>
-              </radialGradient>
-            </defs>
-            <circle cx="80" cy="80" r="72" fill="url(#ag)" stroke="rgba(108,142,245,0.25)" stroke-width="1.5"/>
-            <circle class="voz-eye" cx="57" cy="68" r="7" fill="#6c8ef5"/>
-            <circle class="voz-eye" cx="103" cy="68" r="7" fill="#6c8ef5"/>
-            <circle cx="59" cy="66" r="2.5" fill="#fff" opacity=".7"/>
-            <circle cx="105" cy="66" r="2.5" fill="#fff" opacity=".7"/>
-            <path id="voz-mouth" d="M58 102 Q80 114 102 102" fill="none" stroke="#6c8ef5" stroke-width="3" stroke-linecap="round"/>
-            <circle id="voz-ring" cx="80" cy="80" r="74" fill="none" stroke="rgba(108,142,245,0.18)" stroke-width="3"/>
-          </svg>
+      <div class="voz-avatar" id="voz-avatar">
+        <div class="voz-avatar-inner" id="voz-avatar-inner">
+          <video id="av-idle"     src="icons/atumu.mp4"     autoplay loop muted playsinline></video>
+          <video id="av-ouvindo"  src="icons/atumu.mp4"  autoplay loop muted playsinline style="display:none"></video>
+          <video id="av-pensando" src="icons/atumu.mp4" autoplay loop muted playsinline style="display:none"></video>
+          <video id="av-falando"  src="icons/atumu.mp4"  autoplay loop muted playsinline style="display:none"></video>
         </div>
+      </div>
+      <div class="voz-stage">
         <div class="voz-waves" id="voz-waves">
           <span></span><span></span><span></span><span></span><span></span>
         </div>
@@ -609,7 +619,10 @@ var S = {
   dpY: 0, dpM: 0, dpSel: '',
   aiConfig: { nome: 'Núclea', tom: 'didatico', idioma: 'pt-BR', extra: '' },
   fcConfig: { qtd: 5, dif: 'basico', tipoDireto: true, tipoMC: true },
-  elConfig: { key: '', voiceId: '', motor: 'browser' }
+  // elConfig agora guarda configurações do camb.ai
+  // motor: 'browser' | 'cambai'
+  // lang: código numérico do idioma (ex: 2 = português)
+  elConfig: { key: '7cc92de3-3cae-4d4b-a27a-bcef1aa864b1', voiceId: '171071', motor: 'browser', lang: 2 },
 };
 
 try {
@@ -668,7 +681,7 @@ function loadLS() {
     if (raw) { try { var fc = JSON.parse(raw); S.fcConfig = { qtd:5, dif:'basico', tipoDireto:true, tipoMC:true, ...fc }; } catch(e) {} }
 
     raw = localStorage.getItem('fl_elConfig');
-    if (raw) { try { var el = JSON.parse(raw); S.elConfig = { key:'', voiceId:'', motor:'browser', ...el }; } catch(e) {} }
+    if (raw) { try { var el = JSON.parse(raw); S.elConfig = { key:'', voiceId:'', motor:'browser', lang:2, ...el }; } catch(e) {} }
 
   } catch(e) {}
 }
@@ -1577,11 +1590,14 @@ function saveFCConfig() {
   saveLS(); showToast('🃏 Configurações salvas!');
 }
 
+// saveELKey agora salva configurações do camb.ai
 function saveELKey() {
   S.elConfig.key     = document.getElementById('el-key').value.trim();
   S.elConfig.voiceId = document.getElementById('el-voice').value.trim();
   S.elConfig.motor   = document.getElementById('el-motor').value;
-  saveLS(); updateEngineBadge(); showToast('🔊 Configuração de voz salva!');
+  var langEl = document.getElementById('camb-lang');
+  S.elConfig.lang    = langEl ? parseInt(langEl.value) || 2 : 2;
+  saveLS(); updateEngineBadge(); showToast('🎙 Configuração camb.ai salva!');
 }
 
 function applyAIConfig() {
@@ -1602,7 +1618,6 @@ function applyFCConfig() {
   var d = document.getElementById('fc-tipo-direto'); if (d) d.checked = c.tipoDireto;
   var m = document.getElementById('fc-tipo-mc');     if (m) m.checked = c.tipoMC;
 
-  // sincroniza controles inline
   var inlineQtd = document.getElementById('fc-qtd-inline');
   if (inlineQtd) inlineQtd.textContent = c.qtd;
   document.querySelectorAll('.fc-dif-pill').forEach(function(b) {
@@ -1615,14 +1630,32 @@ function applyELConfig() {
   var k = document.getElementById('el-key');   if (k) k.value = c.key;
   var v = document.getElementById('el-voice'); if (v) v.value = c.voiceId;
   var m = document.getElementById('el-motor'); if (m) m.value = c.motor;
+  var l = document.getElementById('camb-lang'); if (l) l.value = String(c.lang || 2);
   updateEngineBadge();
+}
+
+function applyAvatarVideo(estado) {
+  var ids = ['av-idle','av-ouvindo','av-pensando','av-falando'];
+  var map = { idle:'av-idle', ouvindo:'av-ouvindo', pensando:'av-pensando', falando:'av-falando' };
+  var show = map[estado] || 'av-idle';
+  ids.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (id === show) {
+      el.style.display = 'block';
+      el.play().catch(function(){});
+    } else {
+      el.style.display = 'none';
+      el.pause();
+    }
+  });
 }
 
 function updateEngineBadge() {
   var badge = document.getElementById('voz-engine-badge');
   if (!badge) return;
-  if (S.elConfig.motor === 'elevenlabs' && S.elConfig.key) {
-    badge.textContent = '✨ ElevenLabs'; badge.className = 'voz-engine-badge el';
+  if (S.elConfig.motor === 'cambai' && S.elConfig.key) {
+    badge.textContent = '✨ camb.ai'; badge.className = 'voz-engine-badge el';
   } else {
     badge.textContent = '🔊 Navegador'; badge.className = 'voz-engine-badge';
   }
@@ -1648,24 +1681,99 @@ async function callAI(prompt) {
 }
 
 // ══════════════════════════════════════════════════
-// ELEVENLABS
+// CAMB.AI TTS  (substitui ElevenLabs)
+// Fluxo: POST /tts → task_id → GET /tts/{task_id} polling → GET /tts-result/{run_id}
 // ══════════════════════════════════════════════════
-async function falarElevenLabs(texto) {
-  var key = S.elConfig.key;
-  var voiceId = S.elConfig.voiceId || '21m00Tcm4TlvDq8ikWAM';
-  var res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + voiceId, {
+async function falarCambAI(texto) {
+  var key     = S.elConfig.key;
+  var voiceId = parseInt(S.elConfig.voiceId) || 147320; // voice_id é numérico no camb.ai
+  var lang    = S.elConfig.lang || 2;                   // 1=en, 2=pt, 3=es ...
+
+  var headers = { 'Content-Type': 'application/json', 'x-api-key': key };
+
+  // ── Passo 1: criar a tarefa de TTS ──────────────────────────
+  var createRes = await fetch('https://client.camb.ai/apis/tts', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'xi-api-key': key, 'Accept': 'audio/mpeg' },
-    body: JSON.stringify({ text: texto, model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true } })
+    headers: headers,
+    body: JSON.stringify({
+      text:     texto,
+      voice_id: voiceId,
+      language: lang
+    })
   });
-  if (!res.ok) { var msg = res.status; try { var j = await res.json(); msg = j.detail && j.detail.message || j.detail || msg; } catch(e) {} throw new Error('ElevenLabs ' + msg); }
-  var url = URL.createObjectURL(await res.blob());
-  var audio = new Audio();
+
+  if (!createRes.ok) {
+    var errBody = {};
+    try { errBody = await createRes.json(); } catch(e) {}
+    throw new Error('camb.ai ' + createRes.status + ': ' + (errBody.message || errBody.detail || 'Verifique sua chave'));
+  }
+
+  var createData = await createRes.json();
+  var taskId = createData.task_id;
+  if (!taskId) throw new Error('camb.ai: task_id não retornado');
+
+  // ── Passo 2: polling de status ───────────────────────────────
+  var runId = null;
+  var maxTentativas = 60; // até ~120s com delay de 2s
+  for (var t = 0; t < maxTentativas; t++) {
+    await new Promise(function(r) { setTimeout(r, 2000); });
+
+    var statusRes = await fetch('https://client.camb.ai/apis/tts/' + taskId, {
+      method: 'GET',
+      headers: headers
+    });
+
+    if (!statusRes.ok) {
+      throw new Error('camb.ai: falha ao verificar status (' + statusRes.status + ')');
+    }
+
+    var statusData = await statusRes.json();
+    var status = statusData.status;
+
+    if (status === 'SUCCESS') {
+      runId = statusData.run_id;
+      break;
+    } else if (status === 'FAILED') {
+      throw new Error('camb.ai: geração de áudio falhou');
+    }
+    // status === 'PENDING' ou 'PROCESSING' → continua polling
+  }
+
+  if (!runId) throw new Error('camb.ai: timeout aguardando geração de áudio');
+
+  // ── Passo 3: baixar o áudio ──────────────────────────────────
+  var audioRes = await fetch('https://client.camb.ai/apis/tts-result/' + runId, {
+    method: 'GET',
+    headers: { 'x-api-key': key }
+  });
+
+  if (!audioRes.ok) {
+    throw new Error('camb.ai: falha ao baixar áudio (' + audioRes.status + ')');
+  }
+
+  var audioBlob = await audioRes.blob();
+  var audioUrl  = URL.createObjectURL(audioBlob);
+  var audio     = new Audio();
+
   return new Promise(function(resolve, reject) {
-    audio.oncanplaythrough = function() { VOZ.falando = true; vozUI('falando','Respondendo...'); };
-    audio.onended = function() { VOZ.falando = false; URL.revokeObjectURL(url); vozUI('idle','Pressione o microfone para falar'); resolve(); };
-    audio.onerror = function() { VOZ.falando = false; URL.revokeObjectURL(url); reject(new Error('Falha ao reproduzir áudio')); };
-    audio.src = url; audio.load(); audio.play().catch(reject);
+    audio.oncanplaythrough = function() {
+      VOZ.falando = true;
+      vozUI('falando', 'Respondendo...');
+    };
+    audio.onended = function() {
+      VOZ.falando = false;
+      URL.revokeObjectURL(audioUrl);
+      vozUI('idle', 'Pressione o microfone para falar');
+      resolve();
+    };
+    audio.onerror = function() {
+      VOZ.falando = false;
+      URL.revokeObjectURL(audioUrl);
+      reject(new Error('Falha ao reproduzir áudio do camb.ai'));
+    };
+    audio.src = audioUrl;
+    audio.load();
+    audio.play().catch(reject);
   });
 }
 
@@ -1728,9 +1836,17 @@ async function vozResponder(texto) {
 }
 
 async function vozFalar(texto) {
-  if (S.elConfig.motor === 'elevenlabs' && S.elConfig.key) {
-    try { await falarElevenLabs(texto); return; } catch(e) { showToast('ElevenLabs falhou, usando voz do navegador.','err'); }
+  // Usa camb.ai se motor for 'cambai' e a chave estiver configurada
+  if (S.elConfig.motor === 'cambai' && S.elConfig.key) {
+    try {
+      await falarCambAI(texto);
+      return;
+    } catch(e) {
+      showToast('camb.ai falhou, usando voz do navegador: ' + e.message, 'err');
+    }
   }
+
+  // Fallback: voz do navegador
   VOZ.synth.cancel();
   var u = new SpeechSynthesisUtterance(texto);
   u.lang = 'pt-BR'; u.rate = 1.0; u.pitch = 1.1;
@@ -1763,6 +1879,7 @@ function vozUI(estado, statusTxt) {
     if (avatar) avatar.classList.add('voz-av--'+estado);
     if (btn)    btn.classList.add('voz-btn--'+estado);
   }
+  applyAvatarVideo(estado === 'idle' || estado === 'erro' ? 'idle' : estado);
   var cfg = { idle:{mouth:'M58 102 Q80 112 102 102',label:'Falar'}, ouvindo:{mouth:'M58 102 Q80 112 102 102',label:'Parar'}, pensando:{mouth:'M62 105 Q80 105 98 105',label:'Aguarde'}, falando:{mouth:'M56 98 Q80 118 104 98',label:'Parar'}, erro:{mouth:'M58 108 Q80 100 102 108',label:'Falar'} };
   var cf = cfg[estado] || cfg.idle;
   if (mouth) mouth.setAttribute('d', cf.mouth);
