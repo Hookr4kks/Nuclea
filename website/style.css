@@ -10,7 +10,7 @@
   --sb-w:   240px;
   --sb-col: 56px;
   --sb-bg:  #262626;
-  --sb-bd:  rgba(255,255,255,0.06);
+  --sb-bd:  rgba(1, 1, 1, 0.06);
   --bg:     #171717;
   --bg2:    #262626;
   --bg3:    #1f1f1f;
@@ -114,7 +114,7 @@ body.light .sb .sb-top { border-bottom-color: rgba(255,255,255,0.08); }
 
 .sb-tog {
   width: 28px; height: 28px; flex-shrink: 0;
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 8px;
+  background: #262626; border: 0px solid rgba(255,255,255,0.09); border-radius: 8px;
   cursor: pointer; color: rgba(255,255,255,0.6);
   display: flex; align-items: center; justify-content: center;
   font-size: 14px; line-height: 1;
