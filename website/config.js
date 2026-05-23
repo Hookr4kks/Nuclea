@@ -7,7 +7,7 @@
 video: document.getElementById('voz-video')
 const CONFIG = {
   // 🔑 Substitua pelo valor real da sua chave
-  MISTRAL_API_KEY: 'ZOCpp4OGlEP3fsBNZCKw47gQoCvml9jJ',
+  MISTRAL_API_KEY: 'VsU5fPgdFTBiXYhtqbK3Ut5WHcTghZok',
 
   // Modelo a usar. Opções disponíveis:
   //   'open-mixtral-8x7b'    → gratuito no plano free
