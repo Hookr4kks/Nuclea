@@ -2100,6 +2100,127 @@ document.getElementById('usr-nm').addEventListener('change', function() {
   localStorage.setItem('fl_username', this.value.trim());
 });
 
+// ═══════════════════════════════════════════════════════════════════
+// PATCHES NucleaAI — Substituir os trechos correspondentes no index.html
+// ═══════════════════════════════════════════════════════════════════
+
+// ──────────────────────────────────────────────────────────────────
+// PATCH 1: toggleSb — não aplica .col no mobile (impede sumiço do ☰)
+// ──────────────────────────────────────────────────────────────────
+function toggleSb() {
+  if (window.innerWidth <= 640) return; // ignora em mobile
+  document.getElementById('sb').classList.toggle('col');
+}
+
+// ──────────────────────────────────────────────────────────────────
+// PATCH 2: openMobSb / closeMobSb — gerenciam apenas mob-open
+// ──────────────────────────────────────────────────────────────────
+function openMobSb() {
+  document.getElementById('sb').classList.add('mob-open');
+  document.getElementById('sb-overlay').classList.add('mob-open');
+}
+function closeMobSb() {
+  document.getElementById('sb').classList.remove('mob-open');
+  document.getElementById('sb-overlay').classList.remove('mob-open');
+}
+
+// ──────────────────────────────────────────────────────────────────
+// PATCH 3: addMsgRaw — botões apenas com ícones, fora do bubble
+// ──────────────────────────────────────────────────────────────────
+function addMsgRaw(role, text, tema, nivel) {
+  var c = document.getElementById('chat-msgs');
+  var d = document.createElement('div');
+  d.className = 'msg ' + role;
+
+  var nm = { basico: 'Básico', intermediario: 'Intermediário', avancado: 'Avançado' };
+  var nlvl = nivel === 'basico' ? 'b' : nivel === 'intermediario' ? 'i' : 'a';
+  var meta = (tema || nivel) ? '<div class="msg-meta">' +
+    (tema  ? '<span class="bx bx-tema">📌 ' + tema + '</span>' : '') +
+    (nivel ? '<span class="bx bx-' + nlvl + '">' + (nm[nivel] || nivel) + '</span>' : '') +
+    '</div>' : '';
+
+  if (role === 'u') {
+    d.innerHTML = '<div class="msg-bub-u">' + text + '</div>';
+  } else {
+    // Bubble limpo + botões de ícone ABAIXO do bubble
+    d.innerHTML =
+      '<div>' +
+        '<div class="msg-bub-a">' +
+          '<div class="msg-text-content">' + text + '</div>' +
+          meta +
+        '</div>' +
+        '<div class="msg-actions">' +
+          '<button class="msg-action-btn" onclick="copyMsg(this)" title="Copiar resposta">📋</button>' +
+          '<button class="msg-action-btn" onclick="reloadMsg(this)" title="Recarregar resposta">🔄</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+// ──────────────────────────────────────────────────────────────────
+// PATCH 4: copyMsg — acessa o bubble irmão acima dos botões
+// ──────────────────────────────────────────────────────────────────
+function copyMsg(btn) {
+  // Os botões estão dentro de .msg-actions, que é irmão de .msg-bub-a
+  var actionsDiv = btn.closest('.msg-actions');
+  var bub = actionsDiv ? actionsDiv.previousElementSibling : null;
+  var textEl = bub ? bub.querySelector('.msg-text-content') : null;
+  var text = textEl ? textEl.textContent : '';
+
+  navigator.clipboard.writeText(text).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '✅';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(function() {
+    showToast('Não foi possível copiar.', 'err');
+  });
+}
+
+// ──────────────────────────────────────────────────────────────────
+// PATCH 5: reloadMsg — corrigido para nova estrutura do DOM
+// ──────────────────────────────────────────────────────────────────
+async function reloadMsg(btn) {
+  var lastUser = null;
+  for (var i = S.chatHist.length - 1; i >= 0; i--) {
+    if (S.chatHist[i].role === 'user') { lastUser = S.chatHist[i].content; break; }
+  }
+  if (!lastUser) { showToast('Nenhuma pergunta para recarregar.', 'err'); return; }
+
+  // Remove última resposta do histórico
+  for (var i = S.chatHist.length - 1; i >= 0; i--) {
+    if (S.chatHist[i].role === 'assistant') { S.chatHist.splice(i, 1); break; }
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '⏳';
+
+  // Remove a .msg.a inteira do DOM
+  var msgDiv = btn.closest('.msg.a');
+  if (msgDiv) msgDiv.remove();
+
+  var tid = addTyping();
+  try {
+    var raw = await callAI(buildChatPrompt(lastUser));
+    delTyping(tid);
+    var d;
+    try { d = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+    catch(e) { d = { resposta: raw, tema: null, nivel: null }; }
+    S.chatHist.push({ role: 'assistant', content: d.resposta, tema: d.tema, nivel: d.nivel });
+    addMsg('a', d.resposta, d.tema, d.nivel);
+    saveCurrentSession();
+  } catch(e) {
+    delTyping(tid);
+    addMsg('a', '❌ ' + e.message);
+  }
+}
+
 </script>
 </body>
 </html>
