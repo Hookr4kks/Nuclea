@@ -2104,6 +2104,10 @@ document.getElementById('usr-nm').addEventListener('change', function() {
 // PATCHES NucleaAI — Substituir os trechos correspondentes no index.html
 // ═══════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════
+// PATCHES NucleaAI — Substituir os trechos correspondentes no index.html
+// ═══════════════════════════════════════════════════════════════════
+
 // ──────────────────────────────────────────────────────────────────
 // PATCH 1: toggleSb — não aplica .col no mobile (impede sumiço do ☰)
 // ──────────────────────────────────────────────────────────────────
@@ -2150,8 +2154,12 @@ function addMsgRaw(role, text, tema, nivel) {
           meta +
         '</div>' +
         '<div class="msg-actions">' +
-          '<button class="msg-action-btn" onclick="copyMsg(this)" title="Copiar resposta">📋</button>' +
-          '<button class="msg-action-btn" onclick="reloadMsg(this)" title="Recarregar resposta">🔄</button>' +
+          '<button class="msg-action-btn" onclick="copyMsg(this)" title="Copiar resposta">' +
+            '<img src="icons/copiar-alt(1).png" class="ic16" alt="Copiar" onerror="this.replaceWith(document.createTextNode(\'📋\'))"/>' +
+          '</button>' +
+          '<button class="msg-action-btn" onclick="reloadMsg(this)" title="Recarregar resposta">' +
+            '<img src="icons/vire-a-direita.png" class="ic16" alt="Recarregar" onerror="this.replaceWith(document.createTextNode(\'🔄\'))"/>' +
+          '</button>' +
         '</div>' +
       '</div>';
   }
@@ -2172,7 +2180,7 @@ function copyMsg(btn) {
 
   navigator.clipboard.writeText(text).then(function() {
     var orig = btn.innerHTML;
-    btn.innerHTML = '✅';
+    btn.innerHTML = '<span style="font-size:13px;line-height:1;color:var(--gn)">✓</span>';
     btn.classList.add('copied');
     setTimeout(function() {
       btn.innerHTML = orig;
@@ -2199,7 +2207,7 @@ async function reloadMsg(btn) {
   }
 
   btn.disabled = true;
-  btn.innerHTML = '⏳';
+  btn.innerHTML = '<span style="font-size:11px;opacity:.5">...</span>';
 
   // Remove a .msg.a inteira do DOM
   var msgDiv = btn.closest('.msg.a');
@@ -2220,7 +2228,6 @@ async function reloadMsg(btn) {
     addMsg('a', '❌ ' + e.message);
   }
 }
-
 </script>
 </body>
 </html>
