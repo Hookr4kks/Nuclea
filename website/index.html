@@ -2379,6 +2379,400 @@ async function reloadMsg(btn) {
     addMsg('a', '❌ ' + e.message);
   }
 }
+
+
+
+  
+
+  //======================
+  //LOGIN E BANCO DE DADOS
+  //======================
+
+
+
+  
+(function() {
+ 
+
+
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCHnPz_bb92UoMBTcjegIGQ_GgY6FluRBk",
+  authDomain: "nucleaai-30555.firebaseapp.com",
+  projectId: "nucleaai-30555",
+  storageBucket: "nucleaai-30555.firebasestorage.app",
+  messagingSenderId: "809997459519",
+  appId: "1:809997459519:web:392698d2eccfe3380e988a",
+  measurementId: "G-HCPBQXEJJ3"
+};
+
+
+ 
+var _uid       = null;
+var _syncTimer = null;
+var _patched   = false;
+ 
+
+function loadScript(src, cb) {
+  var s = document.createElement('script');
+  s.src = src;
+  s.onload = cb;
+  s.onerror = function() { console.warn('[NucleaAI] Failed to load:', src); };
+  document.head.appendChild(s);
+}
+ 
+function init() {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  var auth = firebase.auth();
+  var db   = firebase.firestore();
+ 
+  
+  function userDoc(col, id) {
+    return db.collection('users').doc(_uid).collection(col).doc(id);
+  }
+ 
+  function fsSet(col, id, data) {
+    if (!_uid) return Promise.resolve();
+    return userDoc(col, id).set(data, { merge: true }).catch(function(e) {
+      console.warn('[NucleaAI] fsSet:', e);
+    });
+  }
+ 
+  function fsGet(col, id) {
+    if (!_uid) return Promise.resolve(null);
+    return userDoc(col, id).get().then(function(snap) {
+      return snap.exists ? snap.data() : null;
+    }).catch(function() { return null; });
+  }
+ 
+  function cloudSave() {
+    if (!_uid || typeof S === 'undefined') return;
+    setSyncStatus('saving');
+ 
+    var batch = db.batch();
+ 
+    batch.set(userDoc('app','config'), {
+      aiConfig:  S.aiConfig  || {},
+      fcConfig:  S.fcConfig  || {},
+      elConfig:  { motor: (S.elConfig||{}).motor, lang: (S.elConfig||{}).lang },
+      username:  localStorage.getItem('fl_username') || 'Usuário',
+      theme:     localStorage.getItem('fl_theme')    || 'dark',
+      updatedAt: Date.now()
+    }, { merge: true });
+ 
+    batch.set(userDoc('app','progress'), {
+      prog: S.prog || { total:0, acertos:0, erros:0, temas:{} },
+      updatedAt: Date.now()
+    }, { merge: true });
+ 
+    batch.set(userDoc('app','tasks'), {
+      tasks: S.tasks || [],
+      updatedAt: Date.now()
+    }, { merge: true });
+ 
+    batch.set(userDoc('app','events'), {
+      events: S.events || {},
+      updatedAt: Date.now()
+    }, { merge: true });
+ 
+    var unlockedArr = [];
+    try { unlockedArr = Array.from(ACH_STATE.unlocked); } catch(e) {}
+    batch.set(userDoc('app','achievements'), {
+      unlocked: unlockedArr,
+      vozCount: parseInt(localStorage.getItem('ach_voz_count') || '0'),
+      updatedAt: Date.now()
+    }, { merge: true });
+ 
+    batch.commit().then(function() {
+      // salva chats separado
+      return fsSet('app','chats', {
+        sessions:  (S.chatSessions || []).slice(0, 30),
+        updatedAt: Date.now()
+      });
+    }).then(function() {
+      setSyncStatus('synced');
+    }).catch(function(e) {
+      console.warn('[NucleaAI] cloudSave:', e);
+      setSyncStatus('error');
+    });
+  }
+ 
+  function debounceSave() {
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(cloudSave, 1500);
+  }
+ 
+  function cloudLoad() {
+    setSyncStatus('saving');
+    Promise.all([
+      fsGet('app','config'),
+      fsGet('app','progress'),
+      fsGet('app','tasks'),
+      fsGet('app','events'),
+      fsGet('app','achievements'),
+      fsGet('app','chats'),
+    ]).then(function(results) {
+      var cfg   = results[0];
+      var prog  = results[1];
+      var tasks = results[2];
+      var evts  = results[3];
+      var achs  = results[4];
+      var chats = results[5];
+ 
+      if (cfg) {
+        if (cfg.aiConfig) Object.assign(S.aiConfig, cfg.aiConfig);
+        if (cfg.fcConfig) Object.assign(S.fcConfig, cfg.fcConfig);
+        if (cfg.username) localStorage.setItem('fl_username', cfg.username);
+        if (cfg.theme) {
+          var isLight = cfg.theme === 'light';
+          localStorage.setItem('fl_theme', cfg.theme);
+          document.body.classList.toggle('light', isLight);
+          var sw  = document.getElementById('theme-sw');
+          var lbl = document.getElementById('theme-label');
+          var bdg = document.getElementById('badge-ap');
+          if (sw)  sw.classList.toggle('on', isLight);
+          if (lbl) lbl.textContent = isLight ? 'Claro' : 'Escuro';
+          if (bdg) bdg.textContent = isLight ? 'Claro' : 'Escuro';
+        }
+      }
+      if (prog  && prog.prog)     S.prog          = prog.prog;
+      if (tasks && tasks.tasks)   S.tasks         = tasks.tasks;
+      if (evts  && evts.events)   S.events        = evts.events;
+      if (chats && chats.sessions) S.chatSessions = chats.sessions;
+      if (achs  && achs.unlocked) {
+        try {
+          ACH_STATE.unlocked = new Set(achs.unlocked);
+          localStorage.setItem('fl_ach_unlocked', JSON.stringify(achs.unlocked));
+        } catch(e) {}
+        if (achs.vozCount) localStorage.setItem('ach_voz_count', String(achs.vozCount));
+      }
+ 
+      if (typeof applyAIConfig === 'function') applyAIConfig();
+      if (typeof applyFCConfig === 'function') applyFCConfig();
+      if (typeof applyELConfig === 'function') applyELConfig();
+      if (typeof renderTasks   === 'function') renderTasks();
+      if (typeof updBadge      === 'function') updBadge();
+      if (typeof renderCal     === 'function') renderCal();
+      if (typeof saveLS        === 'function') saveLS();
+ 
+      setSyncStatus('synced');
+      showToast('✅ Dados carregados da nuvem!');
+    }).catch(function(e) {
+      console.warn('[NucleaAI] cloudLoad:', e);
+      setSyncStatus('error');
+    });
+  }
+ 
+  
+  function patchSaveLS() {
+    if (_patched) return;
+    _patched = true;
+    var orig = window.saveLS;
+    window.saveLS = function() {
+      orig();
+      if (_uid) debounceSave();
+    };
+  }
+ 
+ 
+  function updateAuthUI(user) {
+    var lo = document.getElementById('auth-logged-out');
+    var li = document.getElementById('auth-logged-in');
+    if (!lo || !li) return;
+ 
+    if (user) {
+      lo.style.display = 'none';
+      li.style.display = 'block';
+ 
+      var name  = user.displayName || user.email || 'Usuário';
+      var first = name.split(' ')[0];
+ 
+      var elName  = document.getElementById('sb-un');
+      var elEmail = document.getElementById('sb-email');
+      if (elName)  elName.textContent  = first;
+      if (elEmail) { elEmail.textContent = user.email; elEmail.style.display = 'block'; }
+ 
+      var avImg    = document.getElementById('sb-av-img');
+      var avLetter = document.getElementById('sb-av-letter');
+      if (user.photoURL && avImg) {
+        avImg.src = user.photoURL;
+        avImg.style.display = 'block';
+        if (avLetter) avLetter.style.display = 'none';
+      } else if (avLetter) {
+        avLetter.textContent = (first[0] || 'U').toUpperCase();
+        avLetter.style.display = 'flex';
+        if (avImg) avImg.style.display = 'none';
+      }
+ 
+      var g = document.getElementById('chat-greeting');
+      if (g) {
+        var h = new Date().getHours();
+        g.textContent = (h<12?'Bom dia':h<18?'Boa tarde':'Boa noite') + ', ' + first + '!';
+      }
+    } else {
+      lo.style.display = 'block';
+      li.style.display = 'none';
+      setSyncStatus('offline');
+    }
+  }
+ 
+  function setSyncStatus(status) {
+    var dot = document.getElementById('auth-sync-dot');
+    var lbl = document.getElementById('auth-sync-label');
+    if (!dot || !lbl) return;
+    var map = {
+      synced:  { c:'#4ade80', t:'Sincronizado'   },
+      saving:  { c:'#fbbf24', t:'Salvando...'    },
+      offline: { c:'#666',    t:'Offline'         },
+      error:   { c:'#f87171', t:'Erro ao salvar'  },
+    };
+    var s = map[status] || map.offline;
+    dot.style.background = s.c;
+    lbl.textContent      = s.t;
+  }
+  window._setSyncStatus = setSyncStatus;
+ 
+  
+  window.authLogin = function() {
+    var btn = document.getElementById('btn-google-login');
+    var lbl = btn ? btn.querySelector('.auth-btn-label') : null;
+    if (btn) btn.disabled = true;
+    if (lbl) lbl.textContent = 'Entrando...';
+ 
+    var provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+ 
+    auth.signInWithPopup(provider).catch(function(e) {
+      if (e.code !== 'auth/popup-closed-by-user') {
+        showToast('Erro ao entrar: ' + e.message, 'err');
+      }
+      if (btn) btn.disabled = false;
+      if (lbl) lbl.textContent = 'Entrar com Google';
+    });
+  };
+ 
+  window.authLogout = function() {
+    if (!confirm('Sair da conta? Seus dados ficam salvos na nuvem.')) return;
+    auth.signOut().then(function() {
+      _uid = null;
+      _patched = false;
+      updateAuthUI(null);
+      showToast('Até logo! 👋');
+    });
+  };
+ 
+  
+  auth.onAuthStateChanged(function(user) {
+    if (user) {
+      _uid = user.uid;
+ 
+      // Salva perfil
+      userDoc('profile','info').set({
+        uid:         user.uid,
+        displayName: user.displayName,
+        email:       user.email,
+        photoURL:    user.photoURL,
+        lastLogin:   Date.now()
+      }, { merge: true }).catch(function(){});
+ 
+      updateAuthUI(user);
+ 
+      // Espera S estar pronto
+      function tryLoad() {
+        if (typeof S !== 'undefined' && typeof saveLS === 'function') {
+          cloudLoad();
+          patchSaveLS();
+        } else {
+          setTimeout(tryLoad, 100);
+        }
+      }
+      tryLoad();
+    } else {
+      _uid = null;
+      updateAuthUI(null);
+    }
+  });
+ 
+} 
+ 
+
+var style = document.createElement('style');
+style.textContent = [
+  '.auth-google-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border-radius:8px;background:var(--sb-new-bg);border:1px solid var(--sb-tog-bd);color:var(--sb-tx-on);font-family:Inter,sans-serif;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;overflow:hidden;transition:background .18s,transform .15s;margin-bottom:4px;}',
+  '.auth-google-btn:hover{background:var(--sb-item-on);transform:translateX(2px);}',
+  '.auth-google-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}',
+  '.auth-sync-row{display:flex;align-items:center;gap:6px;padding:4px 10px 6px;}',
+  '.auth-sync-dot{width:6px;height:6px;border-radius:50%;background:#666;flex-shrink:0;transition:background .3s;}',
+  '.auth-sync-label{font-size:10px;color:var(--sb-tx);font-family:Inter,sans-serif;}',
+  '#sb-email{margin-top:1px;font-size:10px;color:var(--sb-tx);}',
+  '.sb.col .auth-sync-row,.sb.col #sb-email{display:none!important;}',
+  '.sb.col .auth-btn-label{display:none!important;}'
+].join('');
+document.head.appendChild(style);
+ 
+
+var sbBot = document.querySelector('.sb-bot');
+if (sbBot) {
+  sbBot.innerHTML = [
+    '<button class="nav-i" id="n-config" onclick="go(\'config\',this)">',
+      '<span class="nav-ic"><img src="icons/setting (1).png" class="ic16" alt="" onerror="this.replaceWith(document.createTextNode(\'⚙\'))"/></span>',
+      '<span class="nav-lb">Configurações</span>',
+    '</button>',
+    '<div class="sb-div"></div>',
+ 
+    // NÃO logado
+    '<div id="auth-logged-out">',
+      '<button class="auth-google-btn" id="btn-google-login" onclick="authLogin()">',
+        '<svg width="14" height="14" viewBox="0 0 48 48" style="flex-shrink:0">',
+          '<path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.2l6.8-6.8C35.8 2.5 30.2 0 24 0 14.7 0 6.7 5.4 2.8 13.3l7.9 6.1C12.6 13.2 17.9 9.5 24 9.5z"/>',
+          '<path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v8.7h12.4c-.5 2.8-2.1 5.2-4.5 6.8l7 5.4c4.1-3.8 6.2-9.4 6.2-16.3z"/>',
+          '<path fill="#FBBC05" d="M10.7 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.1.7-4.6l-7.9-6.1A24 24 0 0 0 0 24c0 3.9.9 7.5 2.8 10.7l7.9-6.1z"/>',
+          '<path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7-5.4c-2 1.4-4.6 2.2-8.2 2.2-6.1 0-11.4-3.7-13.3-9l-7.9 6.1C6.7 42.6 14.7 48 24 48z"/>',
+        '</svg>',
+        '<span class="auth-btn-label">Entrar com Google</span>',
+      '</button>',
+    '</div>',
+ 
+    // Logado
+    '<div id="auth-logged-in" style="display:none">',
+      '<div class="sb-user">',
+        '<div class="sb-av" id="sb-av" style="overflow:hidden;padding:0">',
+          '<img id="sb-av-img" src="" alt="" style="width:100%;height:100%;border-radius:50%;display:none;object-fit:cover"/>',
+          '<span id="sb-av-letter" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%">U</span>',
+        '</div>',
+        '<div style="flex:1;min-width:0;overflow:hidden">',
+          '<div class="sb-un" id="sb-un">Usuário</div>',
+          '<div id="sb-email" style="display:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>',
+        '</div>',
+      '</div>',
+      '<div class="auth-sync-row">',
+        '<div class="auth-sync-dot" id="auth-sync-dot"></div>',
+        '<span class="auth-sync-label" id="auth-sync-label">Offline</span>',
+      '</div>',
+      '<button class="nav-i" onclick="authLogout()">',
+        '<span class="nav-ic"><img src="icons/exit.png" class="ic16" alt="" onerror="this.replaceWith(document.createTextNode(\'↪\'))"/></span>',
+        '<span class="nav-lb">Sair da conta</span>',
+      '</button>',
+    '</div>'
+  ].join('');
+}
+ 
+function loadScript(src, cb) {
+  var s = document.createElement('script');
+  s.src = src; s.onload = cb;
+  document.head.appendChild(s);
+}
+ 
+var BASE = 'https://www.gstatic.com/firebasejs/9.23.0/';
+loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js', function() {
+  loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js', function() {
+    loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js', function() {
+      init();
+    });
+  });
+});
+ 
+})();
+
 </script>
 </body>
 </html>
