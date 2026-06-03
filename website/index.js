@@ -1863,15 +1863,35 @@ function init() {
     });
   };
  
-  window.authLogout = function() {
-    if (!confirm('Sair da conta? Seus dados ficam salvos na nuvem.')) return;
-    auth.signOut().then(function() {
-      _uid = null;
-      _patched = false;
-      updateAuthUI(null);
-      showToast('Até logo! 👋');
-    });
-  };
+window.authLogout = function() {
+  if (!confirm('Sair da conta? Seus dados ficam salvos na nuvem.')) return;
+  auth.signOut().then(function() {
+    _uid = null;
+    _patched = false;
+
+    // Limpa todos os dados locais ao sair
+    var keysToRemove = [
+      'fl_chats','fl_tasks','fl_events','fl_prog',
+      'fl_aiConfig','fl_fcConfig','fl_elConfig',
+      'fl_ach_unlocked','fl_username','fl_theme',
+      'ach_voz_count','ach_voz_1','ach_chat_noite'
+    ];
+    keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+
+    // Reseta o estado em memória
+    S.chatSessions = []; S.chatHist = []; S.currentSessionId = null;
+    S.tasks = []; S.events = {}; S.prog = { total:0, acertos:0, erros:0, temas:{} };
+    ACH_STATE.unlocked = new Set();
+
+    // Reseta a UI
+    if (typeof resetChatUI === 'function') resetChatUI();
+    if (typeof renderTasks === 'function') renderTasks();
+    if (typeof renderCal   === 'function') renderCal();
+
+    updateAuthUI(null);
+    showToast('Até logo! 👋');
+  });
+};
  
   
   auth.onAuthStateChanged(function(user) {
