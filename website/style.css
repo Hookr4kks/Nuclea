@@ -419,7 +419,7 @@ body.light .kb-col-cnt { background: var(--bg4); }
 body.light .kb-btn-move { background: rgba(59,55,48,0.08); color: #4a4845; border-color: rgba(59,55,48,0.15); }
 .kb-btn-move:hover { background: rgba(61,90,158,0.22); transform: scale(1.03); }
 body.light .kb-btn-move:hover { background: rgba(59,55,48,0.14); }
-.kb-btn-del { font-size: 11px; padding: 2px 7px; background: none; border: none; color: #d4b84a; cursor: pointer; border-radius: var(--rs); opacity: 0; transition: opacity .13s, color .13s; font-family: 'Inter', sans-serif; }
+.kb-btn-del { font-size: 11px; padding: 2px 7px; background: none; border: none; color: #d4b84a; cursor: pointer; border-radius: var(--rs); opacity: 100; transition: opacity .13s, color .13s; font-family: 'Inter', sans-serif; }
 .kb-btn-del:hover { opacity: 1; color: var(--rd); }
 
 /* ══════════════════════════════════════
