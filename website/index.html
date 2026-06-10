@@ -178,9 +178,23 @@
           <div class="add-evt">
             <div class="add-evt-title">Adicionar evento</div>
             <input class="field" id="ev-ti" placeholder="Título do evento" style="width:100%"/>
-            <div class="form-row">
-              <input class="field" id="ev-dt" type="date" style="flex:1"/>
-              <input class="field" id="ev-tm" type="time" style="width:88px"/>
+            <div class="form-row agenda-pick-row">
+              <input id="ev-dt" type="hidden"/>
+              <button class="field ag-pick-btn ag-pick-date" id="ev-dt-btn" type="button" onclick="toggleAgendaDatePick()"><span id="ev-dt-label">Escolher data</span></button>
+              <input id="ev-tm" type="hidden"/>
+              <button class="field ag-pick-btn ag-pick-time" id="ev-tm-btn" type="button" onclick="toggleAgendaTimePick()"><span id="ev-tm-label">Horário</span></button>
+              <div class="ag-date-pop" id="ag-date-pop">
+                <div class="agp-header">
+                  <button class="agp-nav" type="button" onclick="agDateChMon(-1)">&#8249;</button>
+                  <span class="agp-title" id="ag-date-title"></span>
+                  <button class="agp-nav" type="button" onclick="agDateChMon(1)">&#8250;</button>
+                </div>
+                <div class="agp-grid" id="ag-date-grid"></div>
+                <div class="agp-footer">
+                  <button type="button" onclick="agDateToday()">Hoje</button>
+                </div>
+              </div>
+              <div class="ag-time-pop" id="ag-time-pop"></div>
             </div>
             <div style="display:flex;align-items:center;justify-content:space-between">
               <div class="col-opts" id="col-opts"><span style="font-size:10px;color:var(--tx2)">Cor:</span></div>
@@ -201,18 +215,30 @@
         <input class="field kb-add-input" id="tk-in"
           placeholder="Nova tarefa... (Enter para adicionar)"
           onkeydown="if(event.key==='Enter') addTask()"/>
-        <select class="field" id="tk-pr" style="width:100px;flex-shrink:0">
+        <select class="field tk-native-select" id="tk-pr">
           <option value="alta">🔴 Alta</option>
           <option value="media" selected>🟡 Média</option>
           <option value="baixa">🟢 Baixa</option>
         </select>
-        <select class="field" id="tk-cat" style="width:110px;flex-shrink:0">
+        <div class="tk-select-wrap">
+          <button class="field tk-select-btn" id="tk-pr-btn" type="button" onclick="toggleTaskSelect('tk-pr')">
+            <span id="tk-pr-label"></span><span class="tk-select-chev">⌄</span>
+          </button>
+          <div class="tk-select-menu" id="tk-pr-menu"></div>
+        </div>
+        <select class="field tk-native-select" id="tk-cat">
           <option value="geral">📁 Geral</option>
           <option value="estudo">📚 Estudo</option>
           <option value="projeto">🛠 Projeto</option>
           <option value="pessoal">👤 Pessoal</option>
           <option value="urgente">⚡ Urgente</option>
         </select>
+        <div class="tk-select-wrap tk-select-wrap--cat">
+          <button class="field tk-select-btn" id="tk-cat-btn" type="button" onclick="toggleTaskSelect('tk-cat')">
+            <span id="tk-cat-label"></span><span class="tk-select-chev">⌄</span>
+          </button>
+          <div class="tk-select-menu" id="tk-cat-menu"></div>
+        </div>
         <div class="date-pick-wrap" id="date-pick-wrap">
           <button class="date-pick-btn" onclick="toggleDatePick()">
             <span id="date-pick-label">📅 Data</span>
@@ -482,11 +508,17 @@
                     <span class="field-hint">Equilíbrio entre velocidade e qualidade</span>
                   </div>
                   <div class="field-ctrl">
-                    <select class="field" id="mdl-sel" style="width:220px">
+                    <select class="field cfg-native-select" id="mdl-sel">
                       <option value="open-mixtral-8x7b" selected>open-mixtral-8x7b (grátis)</option>
                       <option value="mistral-small-latest">mistral-small (rápido)</option>
                       <option value="mistral-large-latest">mistral-large (melhor)</option>
                     </select>
+                    <div class="cfg-select-wrap cfg-select-wrap--model">
+                      <button class="field cfg-select-btn" id="mdl-sel-btn" type="button" onclick="toggleCfgSelect('mdl-sel')">
+                        <span id="mdl-sel-label"></span><span class="cfg-select-chev">⌄</span>
+                      </button>
+                      <div class="cfg-select-menu" id="mdl-sel-menu"></div>
+                    </div>
                   </div>
                 </div>
                 <div class="field-row">
@@ -552,11 +584,17 @@
                     <span class="field-hint">Idioma para geração de áudio</span>
                   </div>
                   <div class="field-ctrl">
-                    <select class="field" id="camb-lang" style="width:180px" onchange="saveELKey()">
+                    <select class="field cfg-native-select" id="camb-lang" onchange="saveELKey()">
                       <option value="2">Português (2)</option>
                       <option value="1">English (1)</option>
                       <option value="3">Español (3)</option>
                     </select>
+                    <div class="cfg-select-wrap">
+                      <button class="field cfg-select-btn" id="camb-lang-btn" type="button" onclick="toggleCfgSelect('camb-lang')">
+                        <span id="camb-lang-label"></span><span class="cfg-select-chev">⌄</span>
+                      </button>
+                      <div class="cfg-select-menu" id="camb-lang-menu"></div>
+                    </div>
                   </div>
                 </div>
                 <div class="save-row">
@@ -609,11 +647,17 @@
                     <span class="field-label">Idioma das respostas</span>
                   </div>
                   <div class="field-ctrl">
-                    <select class="field" id="ai-idioma" style="width:180px" onchange="updIABadge()">
+                    <select class="field cfg-native-select" id="ai-idioma" onchange="updIABadge()">
                       <option value="pt-BR" selected>Português (BR)</option>
                       <option value="en">English</option>
                       <option value="es">Español</option>
                     </select>
+                    <div class="cfg-select-wrap">
+                      <button class="field cfg-select-btn" id="ai-idioma-btn" type="button" onclick="toggleCfgSelect('ai-idioma')">
+                        <span id="ai-idioma-label"></span><span class="cfg-select-chev">⌄</span>
+                      </button>
+                      <div class="cfg-select-menu" id="ai-idioma-menu"></div>
+                    </div>
                   </div>
                 </div>
                 <div class="field-row">
