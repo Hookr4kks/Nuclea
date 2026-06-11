@@ -2441,10 +2441,11 @@ function prepareAppCheckDebugToken() {
 
 prepareAppCheckDebugToken();
 
-loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js', function() {
-  loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js', function() {
-    loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js', function() {
-      loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js', function() {
+var FIREBASE_SDK_BASE = 'https://www.gstatic.com/firebasejs/9.23.0/';
+loadScript(FIREBASE_SDK_BASE + 'firebase-app-compat.js', function() {
+  loadScript(FIREBASE_SDK_BASE + 'firebase-app-check-compat.js', function() {
+    loadScript(FIREBASE_SDK_BASE + 'firebase-auth-compat.js', function() {
+      loadScript(FIREBASE_SDK_BASE + 'firebase-firestore-compat.js', function() {
         init();
       });
     });
