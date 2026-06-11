@@ -2036,9 +2036,9 @@ function loadScript(src, cb) {
   document.head.appendChild(s);
 }
  
-function init() {
+async function init() {
   firebase.initializeApp(FIREBASE_CONFIG);
-  initAppCheck();
+  await initAppCheck();
   var auth = firebase.auth();
   var db   = firebase.firestore();
  
@@ -2337,12 +2337,12 @@ function initAppCheck() {
 
   if (!siteKey) {
     console.info('[NucleaAI] App Check aguardando FIREBASE_APP_CHECK_SITE_KEY em config.js.');
-    return;
+    return Promise.resolve();
   }
 
   if (!firebase.appCheck) {
     console.warn('[NucleaAI] Firebase App Check SDK nao foi carregado.');
-    return;
+    return Promise.resolve();
   }
 
   try {
@@ -2350,14 +2350,15 @@ function initAppCheck() {
     console.info('[NucleaAI] Firebase App Check ativado.');
     if (cfg.FIREBASE_APP_CHECK_DEBUG_TOKEN) {
       console.info('[NucleaAI] App Check debug ligado. Se o token ainda nao apareceu, aguarde esta solicitacao inicial.');
-      firebase.appCheck().getToken(true).then(function() {
-        console.info('[NucleaAI] Token App Check solicitado com sucesso.');
-      }).catch(function(e) {
-        console.warn('[NucleaAI] Falha ao solicitar token App Check:', e);
-      });
     }
+    return firebase.appCheck().getToken(!!cfg.FIREBASE_APP_CHECK_DEBUG_TOKEN).then(function() {
+      console.info('[NucleaAI] Token App Check solicitado com sucesso.');
+    }).catch(function(e) {
+      console.warn('[NucleaAI] Falha ao solicitar token App Check:', e);
+    });
   } catch (e) {
     console.warn('[NucleaAI] App Check:', e);
+    return Promise.resolve();
   }
 }
  
