@@ -33,6 +33,7 @@ try {
 } catch(e) {}
 
 var today = new Date();
+var chatImage = null;
 S.calY = today.getFullYear();
 S.calM = today.getMonth();
 S.selDate = today.toISOString().split('T')[0];
@@ -288,16 +289,18 @@ async function sendChat() {
   var inp = document.getElementById('chat-in');
   var btn = document.getElementById('btn-send');
   var msg = inp.value.trim();
-  if (!msg) return;
+  var img = chatImage;
+  if (!msg && !img) return;
   inp.value = '';
   inp.style.height = 'auto';
   btn.disabled = true;
   if (!S.currentSessionId) S.currentSessionId = 'sess_' + Date.now();
-  addMsg('u', msg);
-  S.chatHist.push({ role: 'user', content: msg });
+  addMsg('u', msg || '[Imagem anexada]', null, null, img);
+  S.chatHist.push({ role: 'user', content: msg || '[Imagem anexada]', imageName: img ? img.name : null });
+  clearChatImage();
   var tid = addTyping();
   try {
-    var raw = await callAI(buildChatPrompt(msg));
+    var raw = await callAI(buildChatPrompt(msg || 'Analise a imagem enviada.', !!img), img);
     delTyping(tid);
     var d;
     try { d = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
@@ -314,7 +317,7 @@ async function sendChat() {
   inp.focus();
 }
 
-function buildChatPrompt(q) {
+function buildChatPrompt(q, hasImage) {
   var c = S.aiConfig;
   var tomMap = {
     formal:    'Use linguagem formal, técnica e precisa.',
@@ -323,6 +326,9 @@ function buildChatPrompt(q) {
     socratico: 'Use o método socrático: faça perguntas para guiar o aluno ao entendimento.'
   };
   var hist = '';
+  var imageRule = hasImage
+    ? 'A mensagem inclui uma imagem anexada. Analise a imagem diretamente e responda sobre o que aparece nela. Se o texto for curto como "e essa?", entenda como "descreva/analise esta imagem". Nao invente detalhes que nao sejam visiveis.\n'
+    : '';
   var slice = S.chatHist.slice(-8);
   for (var i = 0; i < slice.length; i++) {
     hist += (slice[i].role === 'user' ? 'Aluno' : c.nome) + ': ' + slice[i].content + '\n';
@@ -330,6 +336,7 @@ function buildChatPrompt(q) {
   return 'Você é ' + c.nome + ', um assistente educacional honesto e preciso.\n' +
     'Idioma de resposta: ' + c.idioma + '.\n' +
     (tomMap[c.tom] || tomMap.didatico) + '\n' +
+    imageRule +
     (c.extra ? 'Instrução extra: ' + c.extra + '\n' : '') +
     'REGRAS: Se não tiver CERTEZA diga que não sabe. Responda APENAS perguntas educacionais. Máximo 3 parágrafos.\n' +
     'Histórico:\n' + hist +
@@ -337,7 +344,7 @@ function buildChatPrompt(q) {
     'Responda SOMENTE em JSON: {"resposta":"...","tema":"tema ou null","nivel":"basico|intermediario|avancado ou null"}';
 }
 
-function addMsg(role, text, tema, nivel) {
+function addMsg(role, text, tema, nivel, image) {
   var col = document.getElementById('chat-col');
   if (col.classList.contains('empty')) {
     var g = document.getElementById('chat-greeting');
@@ -352,10 +359,10 @@ function addMsg(role, text, tema, nivel) {
     }, 280);
     document.getElementById('chat-in').placeholder = 'Manda uma mensagem...';
   }
-  setTimeout(function() { addMsgRaw(role, text, tema, nivel); }, col.classList.contains('empty') ? 250 : 0);
+  setTimeout(function() { addMsgRaw(role, text, tema, nivel, image); }, col.classList.contains('empty') ? 250 : 0);
 }
 
-function addMsgRaw(role, text, tema, nivel) {
+function addMsgRaw(role, text, tema, nivel, image) {
   var c = document.getElementById('chat-msgs');
   var d = document.createElement('div');
   d.className = 'msg ' + role;
@@ -1477,14 +1484,17 @@ function updateEngineBadge() {
   }
 }
 
-async function callAI(prompt) {
+async function callAI(prompt, image) {
   var key = S.apiKey || (document.getElementById('api-key') && document.getElementById('api-key').value.trim());
   var model = S.model || 'open-mixtral-8x7b';
   if (!key) throw new Error('Configure sua chave Mistral em ⚙ Configurações');
+  var content = image
+    ? [{ type: 'text', text: prompt }, { type: 'image_url', image_url: image.dataUrl }]
+    : prompt;
   var res = await fetch('https://api.mistral.ai/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-    body: JSON.stringify({ model: model, max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    body: JSON.stringify({ model: model, max_tokens: 1000, messages: [{ role: 'user', content: content }] })
   });
   if (!res.ok) {
     var e = await res.json().catch(function() { return {}; });
@@ -1863,7 +1873,7 @@ function closeMobSb() {
 // ──────────────────────────────────────────────────────────────────
 // PATCH 3: addMsgRaw — botões apenas com ícones, fora do bubble
 // ──────────────────────────────────────────────────────────────────
-function addMsgRaw(role, text, tema, nivel) {
+function addMsgRaw(role, text, tema, nivel, image) {
   var c = document.getElementById('chat-msgs');
   var d = document.createElement('div');
   d.className = 'msg ' + role;
@@ -1876,7 +1886,9 @@ function addMsgRaw(role, text, tema, nivel) {
     '</div>' : '';
 
   if (role === 'u') {
-    d.innerHTML = '<div class="msg-bub-u">' + text + '</div>';
+    var imgHtml = image ? '<img class="msg-user-img" src="' + image.dataUrl + '" alt="' + (image.name || 'Imagem enviada') + '">' : '';
+    var textHtml = text ? '<div class="msg-user-text">' + text + '</div>' : '';
+    d.innerHTML = '<div class="msg-bub-u' + (image ? ' has-img' : '') + '">' + imgHtml + textHtml + '</div>';
   } else {
     d.innerHTML =
       '<div style="display:flex;flex-direction:column;align-items:flex-start;max-width:100%">' +
@@ -1959,10 +1971,48 @@ async function reloadMsg(btn) {
   }
 }
 
+function pickChatImage(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+
+  if(!file.type.startsWith('image/')) {
+    showToast('Por favor, selecione um arquivo de imagem.', 'err');
+    return;
+  }
+
+  var reader = new FileReader();
+  reader.onload = function(event) {
+    chatImage = {
+      name: file.name,
+      type: file.type,
+      dataUrl: reader.result
+    };
+    var preview = document.getElementById('chat-img-preview');
+    if (preview) {
+      preview.innerHTML =
+        '<img src="' + reader.result + '" alt="Imagem anexada" />' +
+        '<span>' + file.name + '</span>' +
+        '<button type="button" onclick="clearChatImage()" title="Remover imagem">×</button>';
+      preview.classList.add('on');
+    }
+    showToast('Imagem anexada!');
+  }
+  reader.readAsDataURL(file);
+}
+
+function clearChatImage() {
+  chatImage = null;
+  var input = document.getElementById('chat-img-input');
+  var preview = document.getElementById('chat-img-preview');
+  if (input) input.value = '';
+  if (preview) {
+    preview.innerHTML = '';
+    preview.classList.remove('on');
+  }
+}
+
 (function() {
  
-
-
 var FIREBASE_CONFIG = {
   apiKey: "AIzaSyCHnPz_bb92UoMBTcjegIGQ_GgY6FluRBk",
   authDomain: "nucleaai-30555.firebaseapp.com",
@@ -1972,8 +2022,6 @@ var FIREBASE_CONFIG = {
   appId: "1:809997459519:web:392698d2eccfe3380e988a",
   measurementId: "G-HCPBQXEJJ3"
 };
-
-
  
 var _uid       = null;
 var _syncTimer = null;
@@ -1990,6 +2038,7 @@ function loadScript(src, cb) {
  
 function init() {
   firebase.initializeApp(FIREBASE_CONFIG);
+  initAppCheck();
   var auth = firebase.auth();
   var db   = firebase.firestore();
  
@@ -2280,7 +2329,37 @@ window.authLogout = function() {
     }
   });
  
-} 
+}
+
+function initAppCheck() {
+  var cfg = (typeof CONFIG !== 'undefined' && CONFIG) ? CONFIG : {};
+  var siteKey = (cfg.FIREBASE_APP_CHECK_SITE_KEY || '').trim();
+
+  if (!siteKey) {
+    console.info('[NucleaAI] App Check aguardando FIREBASE_APP_CHECK_SITE_KEY em config.js.');
+    return;
+  }
+
+  if (!firebase.appCheck) {
+    console.warn('[NucleaAI] Firebase App Check SDK nao foi carregado.');
+    return;
+  }
+
+  try {
+    firebase.appCheck().activate(siteKey, true);
+    console.info('[NucleaAI] Firebase App Check ativado.');
+    if (cfg.FIREBASE_APP_CHECK_DEBUG_TOKEN) {
+      console.info('[NucleaAI] App Check debug ligado. Se o token ainda nao apareceu, aguarde esta solicitacao inicial.');
+      firebase.appCheck().getToken(true).then(function() {
+        console.info('[NucleaAI] Token App Check solicitado com sucesso.');
+      }).catch(function(e) {
+        console.warn('[NucleaAI] Falha ao solicitar token App Check:', e);
+      });
+    }
+  } catch (e) {
+    console.warn('[NucleaAI] App Check:', e);
+  }
+}
  
 
 var style = document.createElement('style');
@@ -2350,11 +2429,23 @@ function loadScript(src, cb) {
   document.head.appendChild(s);
 }
  
-var BASE = 'https://www.gstatic.com/firebasejs/9.23.0/';
+function prepareAppCheckDebugToken() {
+  var cfg = (typeof CONFIG !== 'undefined' && CONFIG) ? CONFIG : {};
+  if (!cfg.FIREBASE_APP_CHECK_DEBUG_TOKEN) return;
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN = cfg.FIREBASE_APP_CHECK_DEBUG_TOKEN === true
+    ? true
+    : String(cfg.FIREBASE_APP_CHECK_DEBUG_TOKEN);
+  console.info('[NucleaAI] App Check debug preparado antes de carregar o SDK.');
+}
+
+prepareAppCheckDebugToken();
+
 loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js', function() {
-  loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js', function() {
-    loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js', function() {
-      init();
+  loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js', function() {
+    loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js', function() {
+      loadScript('https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js', function() {
+        init();
+      });
     });
   });
 });
