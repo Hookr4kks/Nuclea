@@ -6,7 +6,7 @@
 
 const CONFIG = {
   // 🔑 Substitua pelo valor real da sua chave
-  MISTRAL_API_KEY: 'N2a3c0gCW6sEZt8IcN0qh2bnsuMDKuff',
+  MISTRAL_API_KEY: 'azszVFWai8XqRXqjk97X9LS76m6FyuvG',
 
   // Modelo a usar. Opções disponíveis:
   //   'open-mixtral-8x7b'    → gratuito no plano free
