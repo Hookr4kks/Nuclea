@@ -1,0 +1,31 @@
+﻿/* pages/pages\historico\historico.css - NucleaAI (extraído do source original) */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   HISTÃ“RICO
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.panel-historico.on { padding: 22px; gap: 18px; overflow-y: auto; flex-direction: column; }
+.hist-search-wrap { width: 100%; }
+.hist-search { width: 100%; font-size: 13px; padding: 12px 18px; background: var(--bg2); border: 1px solid var(--bd2); border-radius: var(--r); color: var(--tx); }
+body.light .hist-search { background: #ffffff; color: #1a1917; border-color: rgba(0,0,0,0.15); }
+.hist-list { width: 100%; }
+.hist-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+.hist-empty { text-align: center; font-size: 12px; color: var(--tx2); padding: 44px 16px; line-height: 1.8; }
+.hist-card { background: var(--bg2); border: 1px solid var(--bd); border-radius: var(--r); padding: 17px; display: flex; flex-direction: column; gap: 11px; transition: border-color .18s, box-shadow .18s, transform .18s; cursor: default; }
+body.light .hist-card { background: #ffffff; border-color: rgba(0,0,0,0.09); }
+.hist-card:hover { border-color: var(--bd2); box-shadow: var(--shadow-sm); transform: translateY(-2px); }
+.hist-card.hist-active { border-color: rgba(212,184,74,0.55); }
+body.light .hist-card.hist-active { border-color: rgba(184,150,10,0.55); }
+.hist-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.hist-card-title { font-size: 14px; font-weight: 700; color: var(--tx); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: 'Lora', Georgia, serif; }
+.hist-card-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.hist-card-date { font-size: 11px; color: var(--tx2); }
+.hist-card-menu { background: none; border: none; color: var(--tx2); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 2px; letter-spacing: 1px; transition: color .13s; opacity: .5; }
+.hist-card-menu:hover { color: var(--rd); opacity: 1; }
+.hist-card-preview { font-size: 12px; color: var(--tx2); line-height: 1.7; border-left: 2px solid var(--bd2); padding-left: 11px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.hist-preview-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-preview-role { font-weight: 600; color: var(--tx3); }
+.hist-card-actions { display: flex; justify-content: flex-end; }
+.hist-open-btn { font-size: 12px; font-weight: 600; padding: 7px 15px; border-radius: var(--rs); background: rgba(212,184,74,0.12); color: var(--ac2); border: 1px solid rgba(212,184,74,0.24); cursor: pointer; font-family: 'Inter', sans-serif; transition: background .14s, color .14s, transform .14s; }
+body.light .hist-open-btn { background: rgba(184,150,10,0.10); border-color: rgba(184,150,10,0.24); }
+.hist-open-btn:hover { background: rgba(212,184,74,0.22); color: var(--tx); transform: translateX(2px); }
+body.light .hist-open-btn:hover { background: rgba(184,150,10,0.18); color: #5a4700; }
+

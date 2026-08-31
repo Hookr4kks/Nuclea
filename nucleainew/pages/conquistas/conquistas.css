@@ -1,0 +1,70 @@
+﻿/* pages/pages\conquistas\conquistas.css - NucleaAI (extraído do source original) */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   CONQUISTAS
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.panel-conquistas { padding: 0; }
+.ach-wrap { max-width: 900px; margin: 0 auto; padding: 22px 18px 36px; display: flex; flex-direction: column; gap: 18px; }
+.ach-hero { background: var(--bg2); border: 1px solid var(--bd); border-radius: var(--r); padding: 22px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+body.light .ach-hero { background: #ffffff; border-color: rgba(0,0,0,0.09); }
+.ach-level-ring { position: relative; width: 82px; height: 82px; flex-shrink: 0; }
+.ach-lvl-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: var(--tx); }
+.ach-hero-info { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px; }
+.ach-hero-title { font-size: 21px; font-weight: 700; color: var(--tx); }
+.ach-hero-sub { font-size: 12px; color: var(--tx2); margin-bottom: 7px; }
+.ach-xp-row { display: flex; align-items: center; gap: 9px; }
+.ach-xp-bar-track { flex: 1; height: 6px; background: var(--bd2); border-radius: 999px; overflow: hidden; }
+.ach-xp-bar-fill { height: 100%; background: #6c8ef5; border-radius: 999px; transition: width .9s ease; }
+.ach-xp-label { font-size: 11px; color: var(--tx2); white-space: nowrap; }
+.ach-hero-stats { display: flex; gap: 13px; flex-shrink: 0; flex-wrap: wrap; }
+.ach-hstat { text-align: center; background: var(--bg); border: 1px solid var(--bd); border-radius: var(--r); padding: 11px 16px; transition: border-color .16s, transform .16s; }
+body.light .ach-hstat { background: #f0eeea; border-color: rgba(0,0,0,0.09); }
+.ach-hstat:hover { border-color: var(--bd2); transform: translateY(-2px); }
+.ach-hstat-val { font-size: 23px; font-weight: 700; color: var(--tx); }
+.ach-hstat-lbl { font-size: 10px; color: var(--tx2); margin-top: 2px; }
+.ach-filters { display: flex; gap: 7px; flex-wrap: wrap; }
+.ach-filt { font-size: 12px; padding: 5px 14px; border-radius: 999px; border: 1px solid var(--bd2); background: transparent; cursor: pointer; color: var(--tx2); transition: all .16s; }
+.ach-filt:hover { background: var(--bd); color: var(--tx); transform: scale(1.04); }
+body.light .ach-filt:hover { background: rgba(0,0,0,0.05); color: #1a1917; }
+.ach-filt.on { background: #3d5a9e; border-color: #3d5a9e; color: #fff; }
+.ach-section-title { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--tx2); margin: 9px 0; }
+.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 11px; margin-bottom: 4px; }
+.ach-card { background: var(--bg2); border: 1px solid var(--bd); border-radius: var(--r); padding: 15px; display: flex; gap: 13px; align-items: flex-start; transition: border-color .18s, transform .18s, box-shadow .18s; position: relative; overflow: hidden; }
+body.light .ach-card { background: #ffffff; border-color: rgba(0,0,0,0.09); }
+.ach-card:hover { border-color: var(--bd2); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+.ach-card.ach-locked { opacity: .42; filter: grayscale(.55); }
+.ach-card.ach-new { border-color: #3d5a9e; animation: achPop .45s ease; }
+.ach-card-stripe { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 3px 0 0 3px; }
+.ach-icon-box { width: 46px; height: 46px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 23px; flex-shrink: 0; transition: transform .2s; }
+.ach-card:hover .ach-icon-box { transform: scale(1.08) rotate(5deg); }
+.ach-body { flex: 1; min-width: 0; }
+.ach-name-row { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; flex-wrap: wrap; }
+.ach-name { font-size: 14px; font-weight: 600; color: var(--tx); }
+.ach-rare { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+.ach-rare-comum { background: var(--bd); color: var(--tx2); }
+body.light .ach-rare-comum { background: rgba(0,0,0,0.07); color: #6b6760; }
+.ach-rare-raro  { background: rgba(74,222,128,.14); color: #16a34a; }
+.ach-rare-lenda { background: rgba(212,184,74,.16); color: #b47f10; }
+body.light .ach-rare-lenda { color: #7a5800; }
+.ach-desc { font-size: 12px; color: var(--tx2); line-height: 1.55; margin-bottom: 8px; }
+.ach-footer { display: flex; align-items: center; justify-content: space-between; }
+.ach-xp-pill { font-size: 11px; font-weight: 600; color: var(--ac2); background: rgba(212,184,74,0.12); padding: 2px 9px; border-radius: 999px; }
+body.light .ach-xp-pill { background: rgba(184,150,10,0.12); }
+.ach-prog-wrap { margin-top: 5px; }
+.ach-prog-track { height: 4px; background: var(--bd2); border-radius: 999px; overflow: hidden; }
+.ach-prog-fill { height: 100%; background: #3d5a9e; border-radius: 999px; transition: width .6s ease; }
+.ach-prog-label { font-size: 10px; color: var(--tx2); margin-top: 3px; }
+.ach-status-icon { width: 19px; height: 19px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ach-status-icon.done { background: #4ade80; }
+.ach-status-icon.lock { background: var(--bd2); }
+.ach-status-icon svg { width: 10px; height: 10px; stroke-width: 2.5; fill: none; }
+.ach-status-icon.done svg { stroke: #fff; }
+.ach-status-icon.lock svg { stroke: var(--tx2); }
+.ach-toast { position: fixed; bottom: 26px; right: 26px; background: var(--bg2); color: var(--tx); border-radius: var(--r); padding: 15px 20px; display: flex; align-items: center; gap: 13px; font-size: 13px; border: 1px solid rgba(212,184,74,.38); transform: translateY(90px); opacity: 0; transition: transform .38s cubic-bezier(.4,0,.2,1), opacity .38s; z-index: 9999; pointer-events: none; max-width: 290px; box-shadow: var(--shadow-md); }
+body.light .ach-toast { background: #ffffff; color: #1a1917; border-color: rgba(184,150,10,0.35); }
+.ach-toast.show { transform: translateY(0); opacity: 1; }
+.ach-toast-icon  { font-size: 28px; flex-shrink: 0; }
+.ach-toast-title { font-weight: 700; font-size: 12px; color: var(--ac2); margin-bottom: 2px; }
+.ach-toast-name  { font-size: 13px; font-weight: 600; }
+.ach-toast-xp    { font-size: 11px; color: var(--tx2); margin-top: 1px; }
+
+

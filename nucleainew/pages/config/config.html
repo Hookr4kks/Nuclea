@@ -1,0 +1,326 @@
+<!-- CONFIGURAÇÕES -->
+<div class="panel panel-config" id="p-config">
+  <div class="acc-page">
+
+    <!-- API Mistral -->
+    <div class="acc-item" id="s-api">
+      <button class="acc-trigger" onclick="togAcc('s-api')">
+        <div class="acc-icon acc-blue"><img src="icons/setting (1).png" class="ic16" alt="" onerror="this.replaceWith(document.createTextNode('⚙'))"/></div>
+        <div class="acc-label"><span>API Mistral</span><small>Chave e modelo de linguagem</small></div>
+        <span class="acc-badge" id="badge-api">Backend Vercel</span>
+        <span class="acc-chev">›</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <div class="field-group">
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Chave de API</span>
+                <span class="field-hint">Opcional: o site usa o backend seguro da Vercel</span>
+              </div>
+              <div class="field-ctrl">
+                <input class="field" id="api-key" type="password" autocomplete="new-password" name="api-key-field" placeholder="sk-..." style="width:190px"
+                  oninput="document.getElementById('badge-api').textContent=this.value.trim()?'Chave local':'Backend Vercel'"/>
+                <button class="btn pr" onclick="saveKey()">Salvar</button>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Modelo</span>
+                <span class="field-hint">Equilíbrio entre velocidade e qualidade</span>
+              </div>
+              <div class="field-ctrl">
+                <select class="field cfg-native-select" id="mdl-sel">
+                  <option value="open-mixtral-8x7b" selected>open-mixtral-8x7b (grátis)</option>
+                  <option value="mistral-small-latest">mistral-small (rápido)</option>
+                  <option value="mistral-large-latest">mistral-large (melhor)</option>
+                </select>
+                <div class="cfg-select-wrap cfg-select-wrap--model">
+                  <button class="field cfg-select-btn" id="mdl-sel-btn" type="button" onclick="toggleCfgSelect('mdl-sel')">
+                    <span id="mdl-sel-label"></span><span class="cfg-select-chev">⌄</span>
+                  </button>
+                  <div class="cfg-select-menu" id="mdl-sel-menu"></div>
+                </div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Nome de usuário</span>
+                <span class="field-hint">Como a IA vai te chamar</span>
+              </div>
+              <div class="field-ctrl">
+                <input class="field" id="usr-nm" type="text" placeholder="Seu nome" style="width:150px" value="Usuário"/>
+                <button class="btn pr" onclick="saveName()">Salvar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voz -->
+    <div class="acc-item" id="s-voz">
+      <button class="acc-trigger" onclick="togAcc('s-voz')">
+        <div class="acc-icon acc-purple"><img src="icons/microfone.png" class="ic16" alt="" onerror="this.replaceWith(document.createTextNode('🎙'))"/></div>
+        <div class="acc-label"><span>Voz do assistente</span><small>camb.ai — síntese de fala</small></div>
+        <span class="acc-badge" id="badge-voz">Navegador</span>
+        <span class="acc-chev">›</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <div class="field-group">
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Motor de voz</span>
+                <span class="field-hint">Qual sistema usar para falar</span>
+              </div>
+              <div class="field-ctrl">
+                <div class="cfg-pills">
+                  <button class="cfg-pill on" id="pill-browser" onclick="setMotorPill('browser',this)">Navegador</button>
+                  <button class="cfg-pill" id="pill-cambai" onclick="setMotorPill('cambai',this)">camb.ai</button>
+                </div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Chave de API</span>
+                <span class="field-hint">DubStudio → Profile → API Key</span>
+              </div>
+              <div class="field-ctrl">
+                <input class="field" id="el-key" type="password" placeholder="sua-api-key..." style="width:190px"/>
+                <button class="btn pr" onclick="saveELKey()">Salvar</button>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Voice ID</span>
+                <span class="field-hint">ID numérico da voz (ex: 147320)</span>
+              </div>
+              <div class="field-ctrl">
+                <input class="field" id="el-voice" type="text" placeholder="147320" style="width:130px"/>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Idioma de síntese</span>
+                <span class="field-hint">Idioma para geração de áudio</span>
+              </div>
+              <div class="field-ctrl">
+                <select class="field cfg-native-select" id="camb-lang" onchange="saveELKey()">
+                  <option value="2">Português (2)</option>
+                  <option value="1">English (1)</option>
+                  <option value="3">Español (3)</option>
+                </select>
+                <div class="cfg-select-wrap">
+                  <button class="field cfg-select-btn" id="camb-lang-btn" type="button" onclick="toggleCfgSelect('camb-lang')">
+                    <span id="camb-lang-label"></span><span class="cfg-select-chev">⌄</span>
+                  </button>
+                  <div class="cfg-select-menu" id="camb-lang-menu"></div>
+                </div>
+              </div>
+            </div>
+            <div class="save-row">
+              <button class="btn pr" onclick="saveELKey()">Salvar configurações</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personalidade -->
+    <div class="acc-item" id="s-ia">
+      <button class="acc-trigger" onclick="togAcc('s-ia')">
+        <div class="acc-icon acc-green">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+</div>
+
+        <div class="acc-label"><span>Personalidade da IA</span><small>Tom, idioma e comportamento</small></div>
+        <span class="acc-badge" id="badge-ia">Didático · pt-BR</span>
+        <span class="acc-chev">›</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <div class="field-group">
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Nome do assistente</span>
+                <span class="field-hint">Como a IA se apresenta</span>
+              </div>
+              <div class="field-ctrl">
+                <input class="field" id="ai-nome" type="text" placeholder="Ex: NucleaAI" style="width:160px" value="Núclea"/>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Tom de resposta</span>
+                <span class="field-hint">Estilo de comunicação da IA</span>
+              </div>
+              <div class="field-ctrl">
+                <div class="cfg-pills">
+                  <button class="cfg-pill" data-v="formal" onclick="setPillTom(this)">Formal</button>
+                  <button class="cfg-pill on" data-v="didatico" onclick="setPillTom(this)">Didático</button>
+                  <button class="cfg-pill" data-v="amigavel" onclick="setPillTom(this)">Amigável</button>
+                  <button class="cfg-pill" data-v="socratico" onclick="setPillTom(this)">Socrático</button>
+                </div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Idioma das respostas</span>
+              </div>
+              <div class="field-ctrl">
+                <select class="field cfg-native-select" id="ai-idioma" onchange="updIABadge()">
+                  <option value="pt-BR" selected>Português (BR)</option>
+                  <option value="en">English</option>
+                  <option value="es">Español</option>
+                </select>
+                <div class="cfg-select-wrap">
+                  <button class="field cfg-select-btn" id="ai-idioma-btn" type="button" onclick="toggleCfgSelect('ai-idioma')">
+                    <span id="ai-idioma-label"></span><span class="cfg-select-chev">⌄</span>
+                  </button>
+                  <div class="cfg-select-menu" id="ai-idioma-menu"></div>
+                </div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Instrução personalizada</span>
+                <span class="field-hint">Regra extra que a IA sempre segue</span>
+              </div>
+              <div class="field-ctrl">
+                <textarea class="field" id="ai-extra"
+                  placeholder="Ex: Sempre use exemplos do cotidiano"
+                  style="width:220px;height:60px;resize:none;line-height:1.5"></textarea>
+              </div>
+            </div>
+            <div class="save-row">
+              <button class="btn pr" onclick="saveAIConfig()">Salvar personalidade</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flashcards -->
+    <div class="acc-item" id="s-fc">
+      <button class="acc-trigger" onclick="togAcc('s-fc')">
+        <div class="acc-icon acc-amber"><img src="icons/layers.png" class="ic16" alt="" onerror="this.replaceWith(document.createTextNode('🃏'))"/></div>
+        <div class="acc-label"><span>Flashcards</span><small>Quantidade, dificuldade e tipos</small></div>
+        <span class="acc-badge" id="badge-fc">5 cartões · Básico</span>
+        <span class="acc-chev">›</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <div class="field-group">
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Cartões por geração</span>
+                <span class="field-hint">Quantos flashcards criar por tema</span>
+              </div>
+              <div class="field-ctrl cfg-range-row">
+                <input type="range" id="fc-qtd-range" min="3" max="10" value="5" step="1" style="width:110px;accent-color:var(--ac2)"
+                  oninput="document.getElementById('fc-qtd-val').textContent=this.value;syncFCInlineQtd(this.value);updFCBadge()"/>
+                <span class="cfg-range-val" id="fc-qtd-val">5</span>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Dificuldade padrão</span>
+              </div>
+              <div class="field-ctrl">
+                <div class="cfg-pills">
+                  <button class="cfg-pill on" data-v="basico" onclick="setPillDif(this)">Básico</button>
+                  <button class="cfg-pill" data-v="intermediario" onclick="setPillDif(this)">Médio</button>
+                  <button class="cfg-pill" data-v="avancado" onclick="setPillDif(this)">Avançado</button>
+                  <button class="cfg-pill" data-v="misto" onclick="setPillDif(this)">Misto</button>
+                </div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Tipos de carta</span>
+                <span class="field-hint">Quais formatos incluir na geração</span>
+              </div>
+              <div class="field-ctrl cfg-chk-group">
+                <label class="cfg-chk-item">
+                  <input type="checkbox" id="fc-tipo-direto" checked/>
+                  <span>Perguntas diretas</span>
+                </label>
+                <label class="cfg-chk-item">
+                  <input type="checkbox" id="fc-tipo-mc" checked/>
+                  <span>Múltipla escolha</span>
+                </label>
+              </div>
+            </div>
+            <div class="save-row">
+              <button class="btn pr" onclick="saveFCConfig()">Salvar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aparência -->
+    <div class="acc-item" id="s-ap">
+      <button class="acc-trigger" onclick="togAcc('s-ap')">
+        <div class="acc-icon acc-gray">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="11.5" r="2.5"/><circle cx="13.5" cy="17" r="2.5"/><circle cx="20" cy="12" r="2"/><path d="M6.5 14v3.5"/><path d="M13.5 9v5"/><path d="M13.5 20v1"/><path d="M17.5 6.5H22"/></svg>
+</div>
+        <div class="acc-label"><span>Aparência</span><small>Tema claro ou escuro</small></div>
+        <span class="acc-badge" id="badge-ap">Escuro</span>
+        <span class="acc-chev">›</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <div class="field-group">
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Modo claro</span>
+                <span class="field-hint">Alterna entre tema escuro e claro</span>
+              </div>
+              <div class="field-ctrl" style="gap:12px">
+                <span class="theme-label" id="theme-label">Escuro</span>
+                <button class="theme-sw" id="theme-sw"
+                  onclick="toggleTheme();document.getElementById('badge-ap').textContent=document.body.classList.contains('light')?'Claro':'Escuro'"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dados -->
+    <div class="acc-item" id="s-dados">
+      <button class="acc-trigger" onclick="togAcc('s-dados')">
+        <div class="acc-icon acc-red"><img src="icons/exit.png" class="ic16" alt="" onerror="this.replaceWith(document.createTextNode('🗑'))"/></div>
+        <div class="acc-label"><span>Dados &amp; privacidade</span><small>Limpar histórico e estatísticas</small></div>
+        <span class="acc-chev">›</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          <div class="field-group">
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Histórico de chats</span>
+                <span class="field-hint">Remove todas as conversas salvas</span>
+              </div>
+              <div class="field-ctrl">
+                <button class="btn danger" onclick="clearAllChats()">Limpar</button>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-info">
+                <span class="field-label">Flashcards e estatísticas</span>
+                <span class="field-hint">Remove todos os decks e progresso</span>
+              </div>
+              <div class="field-ctrl">
+                <button class="btn danger" onclick="clearFC()">Limpar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

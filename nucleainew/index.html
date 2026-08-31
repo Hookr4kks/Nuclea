@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NucleaAI</title>
+
+  <link rel="stylesheet" href="common/styles.css" />
+  <link rel="stylesheet" href="pages/chat/chat.css" />
+  <link rel="stylesheet" href="pages/historico/historico.css" />
+  <link rel="stylesheet" href="pages/agenda/agenda.css" />
+  <link rel="stylesheet" href="pages/tarefas/tarefas.css" />
+  <link rel="stylesheet" href="pages/flashcards/flashcards.css" />
+  <link rel="stylesheet" href="pages/progresso/progresso.css" />
+  <link rel="stylesheet" href="pages/voz/voz.css" />
+  <link rel="stylesheet" href="pages/conquistas/conquistas.css" />
+  <link rel="stylesheet" href="pages/config/config.css" />
+</head>
+<body>
+
+<aside class="sb" id="sb">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <div class="sb-li">
+        <img src="icons/atomo.png" class="ic-logo" alt=""
+             onerror="this.replaceWith(document.createTextNode('📚'))"/>
+      </div>
+      <div class="sb-lt">Nu<span>clea</span></div>
+    </div>
+    <button class="sb-tog" onclick="toggleSb()">
+      <img src="icons/sidebar.png" class="ic16" alt=""
+           onerror="this.replaceWith(document.createTextNode('☰'))"/>
+    </button>
+  </div>
+
+  <div class="sb-nav">
+    <button class="nav-new" onclick="newChat()">
+      <span class="nav-ic">
+        <img src="icons/button.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('➕'))"/>
+      </span>
+      <span class="nav-lb">Novo Bate-papo</span>
+    </button>
+
+    <button class="nav-i on" id="n-chat" onclick="go('chat',this)">
+      <span class="nav-ic">
+        <img src="icons/bubble-chat.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('💬'))"/>
+      </span>
+      <span class="nav-lb">Chat</span>
+    </button>
+
+    <button class="nav-i" id="n-historico" onclick="go('historico',this)">
+      <span class="nav-ic">
+        <img src="icons/historia.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('🗂'))"/>
+      </span>
+      <span class="nav-lb">Histórico</span>
+    </button>
+
+    <button class="nav-i" id="n-agenda" onclick="go('agenda',this)">
+      <span class="nav-ic">
+        <img src="icons/calendar-clock.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('📅'))"/>
+      </span>
+      <span class="nav-lb">Agenda</span>
+    </button>
+
+    <button class="nav-i" id="n-tarefas" onclick="go('tarefas',this)">
+      <span class="nav-ic">
+        <img src="icons/clipboard.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('☑'))"/>
+      </span>
+      <span class="nav-lb">Tarefas</span>
+      <span class="nav-bd" id="tk-badge" style="display:none">0</span>
+    </button>
+
+    <button class="nav-i" id="n-flashcards" onclick="go('flashcards',this)">
+      <span class="nav-ic">
+        <img src="icons/layers.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('🃏'))"/>
+      </span>
+      <span class="nav-lb">Flashcards</span>
+    </button>
+
+    <button class="nav-i" id="n-progresso" onclick="go('progresso',this)">
+      <span class="nav-ic">
+        <img src="icons/grafico-de-barras.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('📊'))"/>
+      </span>
+      <span class="nav-lb">Progresso</span>
+    </button>
+
+    <button class="nav-i" id="n-voz" onclick="go('voz',this)">
+      <span class="nav-ic">
+        <img src="icons/microfone.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('🎙'))"/>
+      </span>
+      <span class="nav-lb">Assistente de Voz</span>
+    </button>
+
+    <button class="nav-i" id="n-conquistas" onclick="go('conquistas',this)">
+      <span class="nav-ic">
+        <img src="icons/trophy.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('🏆'))"/>
+      </span>
+      <span class="nav-lb">Conquistas</span>
+      <span class="nav-bd" id="ach-badge" style="display:none">!</span>
+    </button>
+  </div>
+
+  <div class="sb-bot">
+    <button class="nav-i" id="n-config" onclick="go('config',this)">
+      <span class="nav-ic">
+        <img src="icons/setting (1).png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('⚙'))"/>
+      </span>
+      <span class="nav-lb">Configurações</span>
+    </button>
+    <div class="sb-div"></div>
+    <div class="sb-user">
+      <div class="sb-av" id="sb-av">U</div>
+      <span class="sb-un" id="sb-un">Usuário</span>
+    </div>
+    <button class="nav-i" onclick="showToast('Até logo! 👋','ok')">
+      <span class="nav-ic">
+        <img src="icons/exit.png" class="ic16" alt=""
+             onerror="this.replaceWith(document.createTextNode('↪'))"/>
+      </span>
+      <span class="nav-lb">Sair</span>
+    </button>
+  </div>
+</aside>
+
+<div class="sb-overlay" id="sb-overlay" onclick="closeMobSb()"></div>
+
+<div class="main">
+  <div class="mob-topbar" id="mob-topbar">
+    <button class="mob-menu-btn" onclick="openMobSb()">☰</button>
+    <div class="mob-title">Nu<span>clea</span>AI</div>
+  </div>
+
+  <div class="content">
+    <!-- Os painéis de cada página são injetados em runtime por
+         common/page-loader.js a partir de pages/<página>/<página>.html -->
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script src="common/core.js"></script>
+
+<script src="pages/chat/chat.js"></script>
+<script src="pages/historico/historico.js"></script>
+<script src="pages/agenda/agenda.js"></script>
+<script src="pages/tarefas/tarefas.js"></script>
+<script src="pages/flashcards/flashcards.js"></script>
+<script src="pages/progresso/progresso.js"></script>
+<script src="pages/conquistas/conquistas.js"></script>
+<script src="pages/config/config.js"></script>
+<script src="pages/voz/voz.js"></script>
+
+<script src="common/boot.js"></script>
+<script src="common/page-loader.js"></script>
+<script src="common/auth.js"></script>
+
+</body>
+</html>
