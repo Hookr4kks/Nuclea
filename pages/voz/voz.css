@@ -1,0 +1,94 @@
+﻿/* pages/pages\voz\voz.css - NucleaAI (extraído do source original) */
+.panel-voz.on {
+  height: calc(100vh - 52px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+.voz-center-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.voz-avatar {
+  width: 680px;
+  height: 640px;
+  flex-shrink: 0;
+  margin-bottom: -120px;
+}
+
+.voz-avatar-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.voz-avatar-inner video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: none;
+}
+
+.voz-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+}
+
+.voz-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 12px;
+}
+
+.voz-status     { font-size: 12px; color: var(--tx2); font-weight: 500; font-family: 'Lora', Georgia, serif; font-style: italic; text-align: center; }
+.voz-transcript { font-size: 13px; color: var(--tx3); text-align: center; max-width: 320px; min-height: 18px; font-style: italic; }
+.voz-response   { font-size: 15px; color: var(--tx); text-align: center; max-width: 360px; line-height: 1.75; min-height: 20px; font-family: 'Lora', Georgia, serif; }
+.voz-mic-btn { width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--bd2); background: var(--bg2); color: var(--tx2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .22s; }
+.voz-mic-btn:hover { background: var(--bg4); color: var(--tx); border-color: var(--ac2); transform: scale(1.07); }
+.voz-mic-label { font-size: 11px; color: var(--tx2); font-weight: 500; letter-spacing: .3px; }
+.voz-engine-badge { font-size: 10px; font-weight: 600; padding: 3px 11px; border-radius: 20px; background: var(--bg4); border: 1px solid var(--bd2); color: var(--tx2); }
+.voz-engine-badge.el { background: var(--pu2); border-color: rgba(167,139,250,.30); color: var(--pu); }
+
+.voz-btn--ouvindo  { background: rgba(74,222,128,0.10) !important; border-color: var(--gn) !important; color: var(--gn) !important; animation: mic-pulse .9s ease-in-out infinite alternate; }
+.voz-btn--falando  { background: rgba(212,184,74,0.10) !important; border-color: var(--ac2) !important; color: var(--ac2) !important; }
+.voz-btn--pensando { background: rgba(251,191,36,0.08) !important; border-color: var(--yw) !important; color: var(--yw) !important; cursor: not-allowed !important; pointer-events: none; }
+
+.voz-waves--falando span { opacity: 1; }
+.voz-waves--falando span:nth-child(1) { animation: wave .7s ease-in-out -.3s  infinite alternate; }
+.voz-waves--falando span:nth-child(2) { animation: wave .7s ease-in-out -.15s infinite alternate; }
+.voz-waves--falando span:nth-child(3) { animation: wave .7s ease-in-out 0s    infinite alternate; }
+.voz-waves--falando span:nth-child(4) { animation: wave .7s ease-in-out -.15s infinite alternate; }
+.voz-waves--falando span:nth-child(5) { animation: wave .7s ease-in-out -.3s  infinite alternate; }
+.voz-waves--ouvindo span { background: var(--gn); opacity: .85; }
+.voz-waves--ouvindo span:nth-child(1) { animation: wave .5s ease-in-out -.2s  infinite alternate; }
+.voz-waves--ouvindo span:nth-child(2) { animation: wave .5s ease-in-out -.1s  infinite alternate; }
+.voz-waves--ouvindo span:nth-child(3) { animation: wave .5s ease-in-out 0s    infinite alternate; }
+.voz-waves--ouvindo span:nth-child(4) { animation: wave .5s ease-in-out -.1s  infinite alternate; }
+.voz-waves--ouvindo span:nth-child(5) { animation: wave .5s ease-in-out -.2s  infinite alternate; }
+.voz-waves--pensando span { background: var(--yw); opacity: .65; }
+.voz-waves--pensando span:nth-child(1) { animation: wave 1.2s ease-in-out -.5s  infinite alternate; }
+.voz-waves--pensando span:nth-child(2) { animation: wave 1.2s ease-in-out -.25s infinite alternate; }
+.voz-waves--pensando span:nth-child(3) { animation: wave 1.2s ease-in-out 0s    infinite alternate; }
+.voz-waves--pensando span:nth-child(4) { animation: wave 1.2s ease-in-out -.25s infinite alternate; }
+.voz-waves--pensando span:nth-child(5) { animation: wave 1.2s ease-in-out -.5s  infinite alternate; }
+
+@media (max-width: 640px) {
+  .panel-voz.on { height: calc(100vh - 50px); }
+  .voz-avatar { width: 200px; height: 200px; }
+}
+
